@@ -77,29 +77,3 @@ material Main/End
 
 
 
-material Main/Portal
-{
-	technique
-	{
-		pass
-		{
-			scene_blend alpha_blend
-			depth_write off
-			lighting off
-			cull_hardware none
-            cull_software none 
-			diffuse vertexcolour
-			
-			texture_unit
-			{
-				texture portal.png
-				tex_address_mode clamp
-			}
-			
-			
-			
-		}
-	}
-}
-
-

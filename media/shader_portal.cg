@@ -1,0 +1,43 @@
+void VertPortal(
+
+							float4 position : POSITION, 
+							float2 uv   : TEXCOORD0,
+  
+							uniform float4x4 worldviewproj, 
+ 
+							out float4 oClipPos    : POSITION,
+							out float2 oUv     : TEXCOORD0
+                  
+						 ) 
+{
+	oClipPos = mul(worldviewproj, position);
+	oUv = uv;
+	
+ 
+}
+
+
+void FragPortal(
+ 
+             float2 uv         : TEXCOORD0,
+			 uniform sampler2D ring  : TEXUNIT0,
+			 uniform sampler2D noise  : TEXUNIT1,
+			 
+             out float4 oColor : COLOR 
+)
+ 
+{
+	
+	float2 uv_circle = uv;
+	uv_circle -= 0.5;
+	
+	float len = length(uv_circle);
+	uv_circle /= len;
+	len = frac(len*10.0);
+	uv_circle *= len;
+	uv_circle += (tex2D(noise,uv) - 0.5) * 0.15;
+	oColor = tex2D(ring,(uv_circle)*0.5 + 0.5);  
+	
+	oColor.w = saturate(1.0 - 10.0*oColor.x);
+	
+}

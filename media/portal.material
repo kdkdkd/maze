@@ -1,0 +1,60 @@
+vertex_program VertPortal cg 
+{ 
+       source shader_portal.cg 
+ 
+       default_params 
+       { 
+			param_named_auto worldviewproj worldviewproj_matrix
+       } 
+	
+       entry_point VertPortal 
+       profiles vs_1_1 arbvp1 
+}
+ 
+fragment_program FragPortal cg 
+ { 
+       source shader_portal.cg 
+   
+       entry_point FragPortal
+       profiles ps_2_0 arbfp1
+ }
+
+
+material Main/Portal
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			depth_write off
+			cull_hardware none
+            cull_software none 
+
+			vertex_program_ref VertPortal
+            { 
+            }
+			fragment_program_ref FragPortal
+            { 
+            } 
+			
+			texture_unit
+			{
+				texture ring.png
+				tex_address_mode border
+				tex_border_colour 1 1 1
+				filtering trilinear
+				
+			}
+			texture_unit
+			{
+				texture noise.png
+			}
+			
+			
+			
+		}
+	}
+}
+
+

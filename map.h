@@ -845,7 +845,7 @@ class Map
                     }else
                     {
                         if(it_quad->strong)
-                            return -1000;
+                            return -100000;
 
                         in = true;
                         dx = 0.0;
@@ -1185,7 +1185,8 @@ class Map
         void render_portal(ManualObject* manual_portals, int index, Portal portal)
         {
             float dx = 8;
-            float dy = 7;
+            float dy = 5;
+            float dtex  = 0.0;
             switch(portal.rotation)
             {
 
@@ -1196,13 +1197,13 @@ class Map
 
 
                     manual_portals->position(portal.position.x - 5 - dx, - dx,portal.position.y - dy);
-                    manual_portals->textureCoord(-1,-1);
+                    manual_portals->textureCoord(-dtex,-dtex);
                     manual_portals->position(portal.position.x + 5 + dx, - dx,portal.position.y - dy);
-                    manual_portals->textureCoord(2,-1);
+                    manual_portals->textureCoord(1+dtex,-dtex);
                     manual_portals->position(portal.position.x - 5 - dx,height_y + dx,portal.position.y - dy);
-                    manual_portals->textureCoord(-1,2);
+                    manual_portals->textureCoord(-dtex,1+dtex);
                     manual_portals->position(portal.position.x + 5 + dx,height_y + dx,portal.position.y - dy);
-                    manual_portals->textureCoord(2,2);
+                    manual_portals->textureCoord(1+dtex,1+dtex);
 
                     manual_portals->index(index);
                     manual_portals->index(index + 1);
@@ -1219,13 +1220,13 @@ class Map
                  case Portal::left:
 
                     manual_portals->position(portal.position.x-dy,-dx,portal.position.y - 2*dx);
-                    manual_portals->textureCoord(-1,-1);
+                    manual_portals->textureCoord(-dtex,-dtex);
                     manual_portals->position(portal.position.x-dy,-dx,portal.position.y+10+ dx*0.5);
-                    manual_portals->textureCoord(2,-1);
+                    manual_portals->textureCoord(1+dtex,-dtex);
                     manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y - 2*dx);
-                    manual_portals->textureCoord(-1,2);
+                    manual_portals->textureCoord(-dtex,1+dtex);
                     manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y+10+ dx*0.5);
-                    manual_portals->textureCoord(2,2);
+                    manual_portals->textureCoord(1+dtex,1+dtex);
 
                     manual_portals->index(index);
                     manual_portals->index(index + 1);
