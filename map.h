@@ -13,6 +13,7 @@ using namespace Ogre;
 struct Portal
 {
     Vector2 position;
+    Vector2 center;
     enum Rotation
     {
         up,
@@ -1310,6 +1311,7 @@ class Map
             Portal portal_out;
             portal_out.position.x = to_real_x(portal.attribute("x").as_double());
             portal_out.position.y = to_real_y(portal.attribute("y").as_double());
+            portal_out.center = portal_out.position;
             Quad q;
             float half_width = 5;
             float half_height = 3;
@@ -1547,6 +1549,28 @@ class Map
 
         }
 
+
+        //FINDS PORTAL, IF NOT FOUND - RETURNS ZERO
+        Portal * find_portal(Vector2 position)
+        {
+            position.x /= scale.x;
+            position.y /= scale.y;
+            float scale_y_local = to_real_y(0.075);
+            scale_y_local*=scale_y_local;
+            for(std::vector<PortalPair>::iterator it = portals.begin();it!=portals.end();++it)
+            {
+                if(it->portal1.position.squaredDistance(position)<scale_y_local)
+                {
+                    return &(it->portal2);
+                }
+                if(it->portal2.position.squaredDistance(position)<scale_y_local)
+                {
+                    return &(it->portal1);
+                }
+            }
+
+            return 0;
+        }
 
         //SET TIME FOR RENDERING
         void set_time(double time)

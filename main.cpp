@@ -143,10 +143,35 @@ class MazeFrameListener : public Ogre::FrameListener
             {
                 mCamera->setPosition(after);
             }
+
+
+
+            Vector3 pos = mCamera->getPosition();
+            Vector2 pos2d = Vector2(pos.x,pos.z);
+
+            Portal* portal = map->find_portal(pos2d);
+            if(portal)
+            {
+                Vector3 in = Vector3(portal->center.x, 0, portal->center.y);
+                in.z+=5;
+                in = map->to_global_space(in);
+                in.y = 150;
+                Vector3 in_dir = in;
+                switch(portal->rotation)
+                {
+                    case Portal::down:mRotX = 0;break;
+                    case Portal::up:mRotX = M_PI;break;
+                    case Portal::left:mRotX = -M_PI_2;break;
+                    case Portal::right:mRotX = M_PI_2;break;
+                }
+                mCamera->setPosition(in);
+                mRotY = 0.0;
+            }
         }
 
         main->setLightPosition(mCamera->getPosition(),map->center_y);
 		mCamera->pitch(mRotY);
+
 
 		map->set_time(evt.timeSinceLastFrame);
 		return true;
