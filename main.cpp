@@ -30,6 +30,9 @@ class MazeFrameListener : public Ogre::FrameListener
     Vector3 mTranslateVector;
     Radian mRotX, mRotY, up, down;
     Example1* main;
+    bool allow_to_move;
+    float time_to_allow_move;
+    void freeze(float time);
 
     MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main);
     bool frameRenderingQueued(const FrameEvent& evt);
@@ -42,10 +45,16 @@ class MazeFrameListener : public Ogre::FrameListener
 	Map* map;
 };
 
-
+    void MazeFrameListener::freeze(float time)
+    {
+        time_to_allow_move = time;
+        allow_to_move = false;
+    }
 
     MazeFrameListener::MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main)
     {
+        time_to_allow_move = 0.0;
+        allow_to_move = true;
         this->mCamera = mCamera;
         this->map = map;
         this->main = main;
@@ -83,94 +92,114 @@ class MazeFrameListener : public Ogre::FrameListener
 
     bool MazeFrameListener::frameRenderingQueued(const FrameEvent& evt)
 	{
-	    mKeyboard->capture();
-	    mMouse->capture();
 
-	    mTranslateVector = Vector3::ZERO;
-		double moveScale = 5000*evt.timeSinceLastFrame;
-
-		if(moveScale>map->max_allowed_step)
-		{
-            moveScale = map->max_allowed_step;
-		}
-
-		bool moved = false;
-
-		if(mKeyboard->isKeyDown(OIS::KC_A))
-		{
-		    moved = true;
-			mTranslateVector.x = -moveScale;
-		}
-
-		if(mKeyboard->isKeyDown(OIS::KC_D))
-		{
-			moved = true;
-			mTranslateVector.x = moveScale;
-		}
-
-		if(mKeyboard->isKeyDown(OIS::KC_W) )
-		{
-            moved = true;
-			mTranslateVector.z = -moveScale;
-		}
-
-		if(mKeyboard->isKeyDown(OIS::KC_S) )
-		{
-            moved = true;
-			mTranslateVector.z = moveScale;
-		}
-        const OIS::MouseState &ms = mMouse->getMouseState();
-
-
-        mCamera->setDirection(0,0,-1);
-        mRotX += Degree(-ms.X.rel * 0.13);
-		mRotY += Degree(-ms.Y.rel * 0.13);
-        /*mRotX = Degree(-ms.X.rel * 0.13);
-		mRotY = Degree(-ms.Y.rel * 0.13);*/
-
-		if(mRotY<down)
-            mRotY = down;
-        if(mRotY>up)
-            mRotY = up;
-        mCamera->yaw(mRotX);
-
-        if(moved)
+        mKeyboard->capture();
+        mMouse->capture();
+        if(!allow_to_move)
         {
-            Vector3 before = mCamera->getPosition();
-            mCamera->moveRelative(mTranslateVector);
-            Vector3 after = mCamera->getPosition();
-            if(map->correct_position(before,after))
+            time_to_allow_move -= evt.timeSinceLastFrame;
+            if(time_to_allow_move<0)
             {
-                mCamera->setPosition(after);
-            }
-
-
-
-            Vector3 pos = mCamera->getPosition();
-            Vector2 pos2d = Vector2(pos.x,pos.z);
-
-            Portal* portal = map->find_portal(pos2d);
-            if(portal)
-            {
-                Vector3 in = Vector3(portal->center.x, 0, portal->center.y);
-                in.z+=5;
-                in = map->to_global_space(in);
-                in.y = 150;
-                Vector3 in_dir = in;
-                switch(portal->rotation)
-                {
-                    case Portal::down:mRotX = 0;break;
-                    case Portal::up:mRotX = M_PI;break;
-                    case Portal::left:mRotX = -M_PI_2;break;
-                    case Portal::right:mRotX = M_PI_2;break;
-                }
-                mCamera->setPosition(in);
-                mRotY = 0.0;
+                allow_to_move = true;
             }
         }
+        if(allow_to_move)
+	    {
+
+            mTranslateVector = Vector3::ZERO;
+            double moveScale = 5000*evt.timeSinceLastFrame;
+
+            if(moveScale>map->max_allowed_step)
+            {
+                moveScale = map->max_allowed_step;
+            }
+
+            bool moved = false;
+
+            if(mKeyboard->isKeyDown(OIS::KC_A))
+            {
+                moved = true;
+                mTranslateVector.x = -moveScale;
+            }
+
+            if(mKeyboard->isKeyDown(OIS::KC_D))
+            {
+                moved = true;
+                mTranslateVector.x = moveScale;
+            }
+
+            if(mKeyboard->isKeyDown(OIS::KC_W) )
+            {
+                moved = true;
+                mTranslateVector.z = -moveScale;
+            }
+
+            if(mKeyboard->isKeyDown(OIS::KC_S) )
+            {
+                moved = true;
+                mTranslateVector.z = moveScale;
+            }
+            const OIS::MouseState &ms = mMouse->getMouseState();
+
+
+            mCamera->setDirection(0,0,-1);
+            mRotX += Degree(-ms.X.rel * 0.13);
+            mRotY += Degree(-ms.Y.rel * 0.13);
+            /*mRotX = Degree(-ms.X.rel * 0.13);
+            mRotY = Degree(-ms.Y.rel * 0.13);*/
+
+            if(mRotY<down)
+                mRotY = down;
+            if(mRotY>up)
+                mRotY = up;
+            mCamera->yaw(mRotX);
+
+            if(moved)
+            {
+                Vector3 before = mCamera->getPosition();
+                mCamera->moveRelative(mTranslateVector);
+                Vector3 after = mCamera->getPosition();
+                if(map->correct_position(before,after))
+                {
+                    mCamera->setPosition(after);
+                }
+
+
+
+                Vector3 pos = mCamera->getPosition();
+                Vector2 pos2d = Vector2(pos.x,pos.z);
+
+                Portal* portal = map->find_portal(pos2d);
+                if(portal)
+                {
+                    freeze(1.0);
+                    Vector3 in = Vector3(portal->center.x, 0, portal->center.y);
+                    in.z+=5;
+                    in = map->to_global_space(in);
+                    in.y = 150;
+                    Vector3 in_dir = in;
+                    switch(portal->rotation)
+                    {
+                        case Portal::down:mRotX = 0;break;
+                        case Portal::up:mRotX = M_PI;break;
+                        case Portal::left:mRotX = -M_PI_2;break;
+                        case Portal::right:mRotX = M_PI_2;break;
+                    }
+                    mCamera->setPosition(in);
+                    mCamera->setDirection(0,0,-1);
+
+                    mRotY = 0.0;
+                    mCamera->yaw(mRotX);
+                }
+            }
+
+
+            mCamera->pitch(mRotY);
+        }
+
+
 
         main->setLightPosition(mCamera->getPosition(),map->center_y);
-		mCamera->pitch(mRotY);
 
 
 		map->set_time(evt.timeSinceLastFrame);
