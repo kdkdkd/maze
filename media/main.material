@@ -36,8 +36,6 @@ material Main/Cave
 			cull_hardware none
             cull_software none 
 
-			ambient 0.3 0.3 0.3
-			
 			vertex_program_ref Vert
             { 
             }

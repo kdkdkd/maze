@@ -59,7 +59,7 @@ void Frag(
 	float4 col1 = tex2D(texture,pos_div.yx);  
 	float4 col2 = tex2D(texture,pos_div.xz);  
 	float4 col3 = tex2D(texture,pos_div.yz);
-	oColor =  (col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz).xxxx;
+	oColor =  (col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz);
 	
 	
     float3 LightDir = normalize(lightpos.xyz - pos.xyz);
@@ -68,7 +68,8 @@ void Frag(
     
 	
 	oColor *=  (lightDiffuse * NdotL + ambient * oColor );
+	
 	oColor /=  distance(pos,lightpos) ;
-	oColor *= 3000.0;
+	oColor *= 2000.0;
 	
 }
