@@ -1527,7 +1527,7 @@ class Map
             global_time+=time*10;
             if ( params_portal->_findNamedConstantDefinition( "time"))
             {
-                params_portal->setNamedConstant( "time", Real(global_time*0.01) );
+                params_portal->setNamedConstant( "time", Real(global_time*0.005) );
             }
         }
 
