@@ -62,7 +62,7 @@ bool compare_quads (Quad first,Quad second)
 
 Map::Map(const char * filename,SceneManager * mSceneMgr)
 {
-    scale = Vector3(200,200,200);
+    scale = Vector3(1,1,1);
     volume_x = 16;
     volume_y = 16;
     volume_z = 16;
@@ -1082,78 +1082,104 @@ void Map::build_random_geometry()
 
 
 
-    ManualObject*  manual_geometry = mSceneMgr->createManualObject("GeometryManual");
+    ManualObject*  manual_geometry = mSceneMgr->createManualObject();
     manual_geometry->begin("Main/Cave", RenderOperation::OT_TRIANGLE_LIST);
+
+    SceneNode* root_node = mSceneMgr->getRootSceneNode();
+    SceneNode* geometry_node = root_node->createChildSceneNode("geometry");
 
 
 
 
     int index = 0;
+    int mesh_index = 0;
 
     int mx = (real_max_x + 5.0) * blocks_per_point;
     int my = (height_y + 5.0)* blocks_per_point;
     int mz = (real_max_y - 5.0)* blocks_per_point;
     float blocks_per_point_reverse = 1.0 / blocks_per_point;
 
-    for(int i_int = -20.0 * blocks_per_point; i_int<mx + 20.0 * blocks_per_point; ++i_int)
-        for(int j_int = -10.0 * blocks_per_point; j_int<my + 20.0 * blocks_per_point; ++j_int)
-            for(int k_int = 20 * blocks_per_point; k_int>mz - 20.0 * blocks_per_point; --k_int)
+    float step = 15;
+
+
+    for(int i_int_step = -20.0 * blocks_per_point; i_int_step<mx + 20.0 * blocks_per_point; i_int_step+=step)
+        for(int k_int_step = 20 * blocks_per_point; k_int_step>mz - 20.0 * blocks_per_point; k_int_step-=step)
+        {
+            //ONE MESH
+            for(int i_int = i_int_step; i_int<i_int_step+step; i_int++)
+                for(int j_int = -10.0 * blocks_per_point; j_int<my + 20.0 * blocks_per_point; ++j_int)
+                    for(int k_int = k_int_step; k_int>k_int_step - step; --k_int)
+                    {
+
+                        float i = i_int*blocks_per_point_reverse;
+                        float j = j_int*blocks_per_point_reverse;
+                        float k = k_int*blocks_per_point_reverse;
+                        float i1 = (i_int + 1.0)*blocks_per_point_reverse;
+                        float j1 = (j_int + 1.0)*blocks_per_point_reverse;
+                        float k1 = (k_int + 1.0)*blocks_per_point_reverse;
+                        float density[8] = {get_density(i,j,k),get_density(i,j1,k),get_density(i1,j1,k),get_density(i1,j,k),get_density(i,j,k1),get_density(i,j1,k1),get_density(i1,j1,k1),get_density(i1,j,k1)};
+                        draw_node(manual_geometry,Vector3(i_int,j_int,k_int),Vector3(blocks_per_point_reverse,blocks_per_point_reverse,blocks_per_point_reverse),index,density);
+                    }
+
+
+            cout<<endl<<endl<<endl<<"POLYGONS"<<index/3<<endl;
+            if(index>0)
             {
+                manual_geometry->end();
+                MeshPtr mesh = manual_geometry->convertToMesh("Geometry" + StringConverter::toString(mesh_index));
+                meshmagick::OptimiseTool optim;
+                optim.setNormTolerance(0.01);
+                optim.setPosTolerance(0.01);
+                optim.setUVTolerance(0.01);
 
-                float i = i_int*blocks_per_point_reverse;
-                float j = j_int*blocks_per_point_reverse;
-                float k = k_int*blocks_per_point_reverse;
-                float i1 = (i_int + 1.0)*blocks_per_point_reverse;
-                float j1 = (j_int + 1.0)*blocks_per_point_reverse;
-                float k1 = (k_int + 1.0)*blocks_per_point_reverse;
-                float density[8] = {get_density(i,j,k),get_density(i,j1,k),get_density(i1,j1,k),get_density(i1,j,k),get_density(i,j,k1),get_density(i,j1,k1),get_density(i1,j1,k1),get_density(i1,j,k1)};
-                draw_node(manual_geometry,Vector3(i_int,j_int,k_int),Vector3(blocks_per_point_reverse,blocks_per_point_reverse,blocks_per_point_reverse),index,density);
+                //optim.processMeshAndSimplify(mesh,0.5);
+                optim.processMesh(mesh);
 
+                Entity * ent_geometry = mSceneMgr->createEntity("GeometryEntinity" + StringConverter::toString(mesh_index),"Geometry" + StringConverter::toString(mesh_index));
+
+                geometry_node->attachObject(ent_geometry);
+                index = 0;
+                mesh_index += 1;
+                manual_geometry = mSceneMgr->createManualObject();
+                manual_geometry->begin("Main/Cave", RenderOperation::OT_TRIANGLE_LIST);
             }
 
-
-    cout<<"POLYGONS"<<index/3<<endl;
-
-
-
-    manual_geometry->end();
-    MeshPtr mesh = manual_geometry->convertToMesh("Geometry");
-    meshmagick::OptimiseTool optim;
-    optim.setNormTolerance(0.01);
-    optim.setPosTolerance(0.01);
-    optim.setUVTolerance(0.01);
-
-    //optim.processMeshAndSimplify(mesh,0.5);
-    optim.processMesh(mesh);
+        }
 
 
 
-    Entity * ent_geometry = mSceneMgr->createEntity("Geometry");
-
-
-    StaticGeometry* all_geometry = mSceneMgr->createStaticGeometry("AllStatic");
 
 
 
-    all_geometry->addEntity(ent_geometry,Ogre::Vector3(0,0,0),Quaternion::IDENTITY,scale);
+    //StaticGeometry* all_geometry = mSceneMgr->createStaticGeometry("AllStatic");
+
+
+
+    //all_geometry->addEntity(ent_geometry,Ogre::Vector3(0,0,0),Quaternion::IDENTITY,scale);
+
+
+
 
     Entity* end = mSceneMgr->createEntity("end","sphere.mesh");
     end->setMaterialName("Main/End");
 
     Vector3 in_end = Vector3(portal_out.x, 0, portal_out.y);
-    in_end = to_global_space(in_end);
-    in_end.y = 750;
+    //in_end = to_global_space(in_end);
+    in_end.y = 3;
+    cout<<"in end"<<in_end<<endl;
+    SceneNode* end_node = root_node->createChildSceneNode("end",in_end);
+    end_node->setScale(Vector3::UNIT_SCALE*0.01);
+    end_node->attachObject(end);
 
-    all_geometry->addEntity(end,in_end,Quaternion::IDENTITY,Vector3::UNIT_SCALE*3);
 
     //PORTALS
     Entity * ent_portals = render_portals();
     if(ent_portals)
-        all_geometry->addEntity(ent_portals,Ogre::Vector3(0,0,0),Quaternion::IDENTITY,scale);
+    {
+        SceneNode* portals_node = root_node->createChildSceneNode("portals");
+        portals_node->attachObject(ent_portals);
+    }
 
-
-
-    all_geometry->build();
 
 }
 
@@ -1266,7 +1292,7 @@ Entity * Map::render_portals()
 
     manual_portals->end();
     manual_portals->convertToMesh("Portals");
-    Entity* res = mSceneMgr->createEntity("Portals");
+    Entity* res = mSceneMgr->createEntity("PortalsEntinity","Portals");
     for ( int iSubEntity = 0; iSubEntity < (int)res->getNumSubEntities(); ++iSubEntity )
     {
         MaterialPtr pMaterial = res->getSubEntity( iSubEntity )->getMaterial();
@@ -1642,3 +1668,4 @@ void Map::set_time(double time)
         params_portal->setNamedConstant( "time", Real(global_time*0.005) );
     }
 }
+

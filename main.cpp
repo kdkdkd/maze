@@ -77,6 +77,7 @@ class Game
         Viewport * mViewport;
         RenderWindow * mWindow;
         Root * mRoot;
+        RaySceneQuery * mRayCast;
 
         Game();
         ~Game();
@@ -87,11 +88,13 @@ class Game
         void createFrameListener();
         void createCamera();
         void createViewport();
+        void createRayQuery();
+        void castViewRay();
         void setLightPosition(Vector3 pos,double center);
         void createScene();
 };
 
-class MazeFrameListener : public Ogre::FrameListener
+class MazeFrameListener : public FrameListener, public OIS::MouseListener
 {
     public:
 
@@ -102,17 +105,35 @@ class MazeFrameListener : public Ogre::FrameListener
     MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Game* main);
     bool frameRenderingQueued(const FrameEvent& evt);
 
-    Ogre::RenderWindow *win;
-    Ogre::Camera *mCamera;
+    RenderWindow *win;
+    Camera *mCamera;
 	OIS::InputManager* mInputManager;
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
 	Map* map;
+	bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+	bool mouseMoved( const OIS::MouseEvent &arg );
+    bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 };
+    bool MazeFrameListener::mouseMoved( const OIS::MouseEvent &arg )
+    {
+        return false;
+    }
+
+	bool MazeFrameListener::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+	{
+        return false;
+	}
 
 
+    bool MazeFrameListener::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+    {
+        cout<<"BUTTON"<<endl;
+        main->castViewRay();
+        return false;
+    }
 
-    MazeFrameListener::MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Game* main)
+    MazeFrameListener::MazeFrameListener(Camera *mCamera,RenderWindow *win, Map* map,Game* main)
     {
         this->mCamera = mCamera;
         this->map = map;
@@ -120,7 +141,7 @@ class MazeFrameListener : public Ogre::FrameListener
 
         Vector3 in = Vector3(map->portal_in.x, 0, map->portal_in.y);
         in = map->to_global_space(in);
-        in.y = 150;
+        in.y = 1;
         Vector3 in_dir = in;
         in_dir.z -= 10;
 
@@ -146,6 +167,8 @@ class MazeFrameListener : public Ogre::FrameListener
 
 		mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, false ));
 		mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, false ));
+        mMouse->setBuffered(true);
+        mMouse->setEventCallback(this);
     }
 
 
@@ -154,14 +177,14 @@ class MazeFrameListener : public Ogre::FrameListener
 
         mKeyboard->capture();
         mMouse->capture();
-
+        mMouse->setEventCallback(this);
         GameLogic.new_frame(evt.timeSinceLastFrame);
 
         if(GameLogic.allow_move())
 	    {
 
             mTranslateVector = Vector3::ZERO;
-            double moveScale = 5000*evt.timeSinceLastFrame;
+            double moveScale = 25*evt.timeSinceLastFrame;
 
             if(moveScale>map->max_allowed_step)
             {
@@ -193,6 +216,8 @@ class MazeFrameListener : public Ogre::FrameListener
                 moved = true;
                 mTranslateVector.z = moveScale;
             }
+
+           
             const OIS::MouseState &ms = mMouse->getMouseState();
 
 
@@ -212,7 +237,9 @@ class MazeFrameListener : public Ogre::FrameListener
             {
                 Vector3 before = mCamera->getPosition();
                 mCamera->moveRelative(mTranslateVector);
+
                 Vector3 after = mCamera->getPosition();
+                //cout<<after<<endl;
                 if(map->correct_position(before,after))
                 {
                     mCamera->setPosition(after);
@@ -230,7 +257,7 @@ class MazeFrameListener : public Ogre::FrameListener
                     Vector3 in = Vector3(portal->center.x, 0, portal->center.y);
                     in.z+=5;
                     in = map->to_global_space(in);
-                    in.y = 150;
+                    in.y = 1;
                     Vector3 in_dir = in;
                     switch(portal->rotation)
                     {
@@ -289,24 +316,22 @@ class MazeFrameListener : public Ogre::FrameListener
         void Game::createCamera()
         {
             mCamera = mSceneMgr->createCamera("MyCamera1");
+            mCamera->setNearClipDistance(Real(1));
             GameLogic.set_camera(mCamera);
             //mCamera->setPolygonMode(PM_WIREFRAME);
         }
-
         void Game::createViewport()
         {
             mViewport = mWindow->addViewport(mCamera);
             mViewport->setBackgroundColour(ColourValue(0.0,0.0,0.0));
             mCamera->setAspectRatio(Real(mViewport->getActualWidth())/Real(mViewport->getActualHeight()));
         }
-
         void Game::setLightPosition(Vector3 pos,double center)
         {
             light->setPosition(pos);
             pos.y = center;
             nodeLight->setPosition(pos);
         }
-
         void Game::createScene()
         {
 
@@ -335,8 +360,6 @@ class MazeFrameListener : public Ogre::FrameListener
             LightEnt->setMaterialName("Main/Light");
             nodeLight->attachObject(LightEnt);*/
         }
-
-
         bool Game::createConfig()
         {
             mRoot = new Root("plugins.cfg");
@@ -362,6 +385,31 @@ class MazeFrameListener : public Ogre::FrameListener
             ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
         }
+        void  Game::createRayQuery()
+        {
+            mRayCast = mSceneMgr->createRayQuery(Ray());
+            //mRayCast->setSortByDistance(true);
+        }
+        void  Game::castViewRay()
+        {
+            Vector3 normal=mCamera->getDirection();
+            normal.normalise();
+            Ray ray(mCamera->getPosition(),normal);
+            mRayCast->setRay(ray);
+
+
+            RaySceneQueryResult query_result = mRayCast->execute();
+            for (size_t qindex = 0; qindex  < query_result.size(); qindex ++)
+            {
+                //cout<<query_result[qindex].distance<<endl;
+                if ((query_result[qindex].movable != NULL) && (query_result[qindex].movable->getMovableType().compare("Entity") == 0))
+                {
+                    Entity *pentity = static_cast<Ogre::Entity*>(query_result[qindex].movable);
+                    cout<<pentity->getName()<<" "<<query_result[qindex].distance<</*pentity->getBoundingBox()<<*/endl;
+                }
+            }
+
+        }
 
 int main()
 {
@@ -377,6 +425,7 @@ int main()
     g.loadRes();
     g.createScene();
     g.createFrameListener();
+    g.createRayQuery();
     g.mRoot->startRendering();
 
 

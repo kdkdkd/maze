@@ -68,11 +68,11 @@ void FragPortal(
 	
 	
 	oColor.w = saturate(1-(exp(40*len_original) * 0.0001));
-	oColor.w *= (1-2*oColor.x)*1.5;
+	oColor.w *= (1-2*oColor.x);
 	
 	oColor.w /=  distance(pos,light);
-	oColor.w *= 2000.0;
-	
+	oColor.w *= 20.0;
+	oColor.w = min(0.6,oColor.w);
 	
 	oColor += color;
 	
