@@ -3,8 +3,12 @@
 	<portalout point="p45"></portalout>
 	<portals>
 		<portalpair color="red">
-			<portal x="1" y="5" direction="down" />
-			<portal x="5" y="1" direction="up" />
+			<portal x="2" y="1" direction="up" />
+			<portal x="2" y="2" direction="down" />
+		</portalpair>
+		<portalpair color="blue">
+			<portal x="5" y="3" direction="right" />
+			<portal x="1" y="1" direction="left" />
 		</portalpair>
 	</portals>
 	<points>

@@ -13,8 +13,8 @@ struct PortalPair
 {
     public:
     Vector3 color;
-    Vector3 portal1;
-    Vector3 portal2;
+    Vector2 portal1;
+    Vector2 portal2;
 };
 
 struct NodeDirectons
@@ -52,6 +52,10 @@ struct Quad
             this->x1 = x1;
             this->y0 = y0;
             this->y1 = y1;
+        }
+        Quad()
+        {
+
         }
 
         void arrange()
@@ -171,12 +175,12 @@ class Map
         //TRANSFORMATIONS
         double to_real_x(double x)
         {
-            return (x - 1.0)*30.0;
+            return (x - 1.0)*40.0;
         }
 
         double to_real_y(double y)
         {
-            return -(y)*30.0;
+            return -(y)*40.0;
         }
 
         Vector2 to_real(Vector2 point)
@@ -1150,6 +1154,70 @@ class Map
 
         }
 
+        //INSERT PORTAL QUAD ALL WALLS
+        Vector2 add_portal(xml_node portal)
+        {
+            Vector2 portal_out;
+            portal_out.x = to_real_x(portal.attribute("x").as_double());
+            portal_out.y = to_real_y(portal.attribute("y").as_double());
+            Quad q;
+            float half_width = 5;
+            float half_height = 2.5;
+
+            if(!strcmp(portal.attribute("direction").value(),"up"))
+            {
+                portal_out.y -= half_height;
+
+                q.x0 = portal_out.x - half_width;
+                q.x1 = portal_out.x + half_width;
+                q.y0 = portal_out.y - half_height;
+                q.y1 = portal_out.y + half_height;
+
+
+             }else if(!strcmp(portal.attribute("direction").value(),"right"))
+             {
+                portal_out.x += 5 + half_height;
+                portal_out.y += 5;
+
+                q.x0 = portal_out.x - half_height;
+                q.x1 = portal_out.x + half_height;
+                q.y0 = portal_out.y - half_width;
+                q.y1 = portal_out.y + half_width;
+
+             }
+             else if(!strcmp(portal.attribute("direction").value(),"left"))
+             {
+                portal_out.x -= 5 + half_height;
+                portal_out.y += 5;
+
+                q.x0 = portal_out.x - half_height;
+                q.x1 = portal_out.x + half_height;
+                q.y0 = portal_out.y - half_width;
+                q.y1 = portal_out.y + half_width;
+
+            }else //down
+            {
+                portal_out.y += 10 + half_height;
+                q.x0 = portal_out.x - half_width;
+                q.x1 = portal_out.x + half_width;
+                q.y0 = portal_out.y - half_height;
+                q.y1 = portal_out.y + half_height;
+
+
+            }
+
+            quads.push_back(q);
+
+            Block b;
+            b.constant = q.x0;b.differ.x = q.y0;b.differ.y = q.y1;b.is_positive_direction = true;merge_block_vertical(b);
+            b.constant = q.x1;b.differ.x = q.y0;b.differ.y = q.y1;b.is_positive_direction = false;merge_block_vertical(b);
+
+            b.constant = q.y0;b.differ.x = q.x0;b.differ.y = q.x1;b.is_positive_direction = true;merge_block_horizontal(b);
+            b.constant = q.y1;b.differ.x = q.x0;b.differ.y = q.x1;b.is_positive_direction = false;merge_block_horizontal(b);
+            return portal_out;
+        }
+
+
         //FILL VECTOR WITH PORTALS, PATCH BLOKS AND QUADS
         void parse_portals()
         {
@@ -1170,30 +1238,66 @@ class Map
                 {
                     insert_portal.color = Vector3(0,0,1);
                 }
+                xml_node portal1 = portalpair.node().child("portal");
+                insert_portal.portal1 = add_portal(portal1);
+                xml_node portal2 = portal1.next_sibling("portal");
+                insert_portal.portal2 = add_portal(portal2);
 
 
 
                 this->portals.push_back(insert_portal);
             }
 
+
+
+        }
+
+
+        //FIND IF BLOCK CONTAINS ANOTHER ONE AND MAKE HOLE IN IT
+        void merge_block(Block b,std::vector<Block>& dest)
+        {
+
+
+
+            for(std::vector<Block>::iterator it=dest.begin();it!=dest.end();++it)
+            {
+
+
+                if(fabs(it->constant - b.constant)<0.001&& b.differ.x - it->differ.x>-0.001 && it->differ.y - b.differ.y > -0.001)
+                {
+                    Block b1; b1.constant = it->constant; b1.differ.x = it->differ.x;b1.differ.y = b.differ.x;b1.is_positive_direction = it->is_positive_direction;
+                    Block b2; b2.constant = it->constant; b2.differ.x = b.differ.y;b2.differ.y = it->differ.y;b2.is_positive_direction = it->is_positive_direction;
+                    dest.erase(it);
+                    if(fabs(b1.differ.x - b1.differ.y)>0.01)
+                    {
+                        dest.push_back(b1);
+                    }
+                    if(fabs(b2.differ.x - b2.differ.y)>0.01)
+                    {
+                        dest.push_back(b2);
+                    }
+                    return;
+                }
+            }
+            dest.push_back(b);
+
+        }
+
+
+        void merge_block_vertical(Block b)
+        {
+            merge_block(b,blocks_vertical);
+        }
+
+
+        void merge_block_horizontal(Block b)
+        {
+            merge_block(b,blocks_horizontal);
         }
 
         //BUILD REGULAR GEOMETRY
         void build_geometry()
         {
-            /*ManualObject*  manual_floor = mSceneMgr->createManualObject("FloorManual");
-            manual_floor->begin("Examples/BeachStones", RenderOperation::OT_TRIANGLE_LIST);
-
-            ManualObject*  manual_wall = mSceneMgr->createManualObject("WallManual");
-            manual_wall->begin("Examples/BeachStones", RenderOperation::OT_TRIANGLE_LIST);
-
-            ManualObject*  manual_ceiling = mSceneMgr->createManualObject("CeilingManual");
-            manual_ceiling->begin("Examples/BeachStones", RenderOperation::OT_TRIANGLE_LIST);
-
-            int index_floor = 0;
-            int index_wall = 0;
-            int index_ceiling = 0;*/
-
 
 
             xpath_node_set points = doc.select_nodes("/map/points/point");
@@ -1204,173 +1308,25 @@ class Map
                 double x = to_real_x(point.node().attribute("x").as_double());
                 double y = to_real_y(point.node().attribute("y").as_double());
 
-                //DRAW FLOOR AND CEIL NODES
-                /*manual_floor->position(5.0 + x, 0.0, y);
-                manual_floor->textureCoord((5.0 + x) * max_x,y * max_y);
-
-                manual_floor->position(-5.0 + x, 0.0, 10.0 + y);
-                manual_floor->textureCoord((-5.0 + x) * max_x,(10.0 + y) * max_y);
-
-                manual_floor->position(-5.0 + x, 0.0,y);
-                manual_floor->textureCoord((-5.0 + x) * max_x,y * max_y);
-
-                manual_floor->position(5.0 + x, 0.0, 10.0 + y);
-                manual_floor->textureCoord((5.0 + x) * max_x,(10.0 + y) * max_y);
-
-
-                manual_floor->index(index_floor + 2);
-                manual_floor->index(index_floor + 1);
-                manual_floor->index(index_floor);
-                manual_floor->index(index_floor + 1);
-                manual_floor->index(index_floor + 3);
-                manual_floor->index(index_floor);
-
-                index_floor += 4;
-
-                manual_ceiling->position(5.0 + x, height_y, y);
-                manual_ceiling->textureCoord((5.0 + x) * max_x,y * max_y);
-
-                manual_ceiling->position(-5.0 + x, height_y, 10.0 + y);
-                manual_ceiling->textureCoord((-5.0 + x) * max_x,(10.0 + y) * max_y);
-
-                manual_ceiling->position(-5.0 + x, height_y,y);
-                manual_ceiling->textureCoord((-5.0 + x) * max_x,y * max_y);
-
-                manual_ceiling->position(5.0 + x, height_y, 10.0 + y);
-                manual_ceiling->textureCoord((5.0 + x) * max_x,(10.0 + y) * max_y);
-
-
-                manual_ceiling->index(index_ceiling);
-                manual_ceiling->index(index_ceiling + 1);
-                manual_ceiling->index(index_ceiling + 2);
-                manual_ceiling->index(index_ceiling);
-                manual_ceiling->index(index_ceiling + 3);
-                manual_ceiling->index(index_ceiling + 1);
-
-                index_ceiling += 4;*/
-
-
 
                 //DRAW CORNERS
                 NodeDirectons directions = get_directions(point.node().attribute("id").value());
                 if(!directions.is_back)
                 {
-
-                    /*manual_wall->position(5.0 + x, 0.0, y + 10.0);
-                    manual_wall->textureCoord((5.0 + x) * max_x,0);
-
-                    manual_wall->position(-5.0 + x, 0.0,y + 10.0);
-                    manual_wall->textureCoord((-5.0 + x) * max_x,0);
-
-                    manual_wall->position(5.0 + x, height_y, y + 10.0);
-                    manual_wall->textureCoord((5.0 + x) * max_x,text_y);
-
-                    manual_wall->position(-5.0 + x, height_y,y + 10.0);
-                    manual_wall->textureCoord((-5.0 + x) * max_x,text_y);*/
-
-
                     Block b;b.constant = y + 10.0;b.differ = Vector2(-5.0 + x,5.0 + x);b.arrange();b.is_positive_direction = false;blocks_horizontal.push_back(b);
-
-
-
-                    /*manual_wall->index(index_wall);
-                    manual_wall->index(index_wall + 1);
-                    manual_wall->index(index_wall+2);
-                    manual_wall->index(index_wall + 3);
-                    manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 1);
-
-
-
-
-                    index_wall += 4;*/
-
                 }
                 if(!directions.is_forw)
                 {
-
-                    /*manual_wall->position(5.0 + x, 0.0, y);
-                    manual_wall->textureCoord((5.0 + x) * max_x,0);
-
-                    manual_wall->position(-5.0 + x, 0.0,y);
-                    manual_wall->textureCoord((-5.0 + x) * max_x,0);
-
-                    manual_wall->position(5.0 + x, height_y, y);
-                    manual_wall->textureCoord((5.0 + x) * max_x,text_y);
-
-                    manual_wall->position(-5.0 + x, height_y,y);
-                    manual_wall->textureCoord((-5.0 + x) * max_x,text_y);*/
                     Block b;b.constant = y;b.differ = Vector2(-5.0 + x,5.0 + x);b.arrange();b.is_positive_direction = true;blocks_horizontal.push_back(b);
-
-                    /*manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 1);
-                    manual_wall->index(index_wall);
-                    manual_wall->index(index_wall + 1);
-                    manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 3);*/
-
-                    //index_wall += 4;
-
                 }
                 if(!directions.is_left)
                 {
-
-                    /*manual_wall->position(-5.0 + x, 0.0, y);
-                    manual_wall->textureCoord((y) * max_y,0);
-
-                    manual_wall->position(-5.0 + x, 0.0,y + 10.0);
-                    manual_wall->textureCoord((y + 10.0) * max_y,0);
-
-                    manual_wall->position(-5.0 + x, height_y, y);
-                    manual_wall->textureCoord((y) * max_y,text_y);
-
-                    manual_wall->position(-5.0 + x, height_y,y + 10.0);
-                    manual_wall->textureCoord((y + 10.0) * max_y,text_y);*/
-
                     Block b;b.constant = -5.0 + x;b.differ = Vector2(y,y + 10.0);b.arrange();b.is_positive_direction = true;blocks_vertical.push_back(b);
-
-
-                    /*manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 1);
-                    manual_wall->index(index_wall);
-                    manual_wall->index(index_wall + 1);
-                    manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 3);
-
-                    index_wall += 4;*/
-
                 }
                 if(!directions.is_right)
                 {
-
-                    /*manual_wall->position(5.0 + x, 0.0, y);
-                    manual_wall->textureCoord((y) * max_y,0);
-
-                    manual_wall->position(5.0 + x, 0.0,y + 10.0);
-                    manual_wall->textureCoord((y + 10.0) * max_y,0);
-
-                    manual_wall->position(5.0 + x, height_y, y);
-                    manual_wall->textureCoord((y) * max_y,text_y);
-
-                    manual_wall->position(5.0 + x, height_y,y + 10.0);
-                    manual_wall->textureCoord((y + 10.0) * max_y,text_y);*/
-
                     Block b;b.constant = 5.0 + x;b.differ = Vector2(y,y + 10.0);b.arrange();b.is_positive_direction = false;blocks_vertical.push_back(b);
-
-                    /*manual_wall->index(index_wall);
-                    manual_wall->index(index_wall + 1);
-                    manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 3);
-                    manual_wall->index(index_wall + 2);
-                    manual_wall->index(index_wall + 1);
-
-                    index_wall += 4;*/
-
                 }
-
-
-
-
 
             }
 
@@ -1399,67 +1355,8 @@ class Map
                         swap_i = start_index;start_index = end_index;end_index = swap_i;
                     }
                     {
-                        /*manual_floor->index(start_index + 3);
-                        manual_floor->index(start_index + 1);
-                        manual_floor->index(end_index + 2);
-
-                        manual_floor->index(start_index + 3);
-                        manual_floor->index(end_index + 2);
-                        manual_floor->index(end_index);
-
-
-                        manual_ceiling->index(end_index + 2);
-                        manual_ceiling->index(start_index + 1);
-                        manual_ceiling->index(start_index + 3);
-
-                        manual_ceiling->index(end_index);
-                        manual_ceiling->index(end_index + 2);
-                        manual_ceiling->index(start_index + 3);
-
-
-                        manual_wall->position(-5.0 + real_start.x, 0.0, real_start.y + 10.0);
-                        manual_wall->textureCoord((real_start.y + 10.0)*max_y,0);
-
-                        manual_wall->position(-5.0 + real_end.x, 0.0, real_end.y);
-                        manual_wall->textureCoord((real_end.y)*max_y,0);
-
-                        manual_wall->position(-5.0 + real_end.x, height_y, real_end.y);
-                        manual_wall->textureCoord(real_end.y*max_y,text_y);
-
-                        manual_wall->position(-5.0 + real_start.x, height_y, real_start.y+10.0);
-                        manual_wall->textureCoord((real_start.y+10.0)*max_y,text_y);*/
-
                         Block b1;b1.constant = -5.0 + real_start.x;b1.differ = Vector2(real_end.y,real_start.y + 10.0);b1.arrange();b1.is_positive_direction = true;blocks_vertical.push_back(b1);
-
-                        /*manual_wall->position(5.0 + real_start.x, 0.0, real_start.y+10.0);
-                        manual_wall->textureCoord((real_start.y+10.0)*max_y,0);
-
-                        manual_wall->position(5.0 + real_end.x, 0.0, real_end.y);
-                        manual_wall->textureCoord(real_end.y*max_y,0);
-
-                        manual_wall->position(5.0 + real_end.x, height_y, real_end.y);
-                        manual_wall->textureCoord(real_end.y*max_y,text_y);
-
-                        manual_wall->position(5.0 + real_start.x, height_y, real_start.y+10.0);
-                        manual_wall->textureCoord((real_start.y+10.0)*max_y,text_y);*/
-
                         Block b2;b2.constant = 5.0 + real_start.x;b2.differ = Vector2(real_end.y,real_start.y + 10.0);b2.arrange();b2.is_positive_direction = false;blocks_vertical.push_back(b2);
-
-                        /*manual_wall->index(index_wall + 2);
-                        manual_wall->index(index_wall + 1);
-                        manual_wall->index(index_wall);
-                        manual_wall->index(index_wall);
-                        manual_wall->index(index_wall + 3);
-                        manual_wall->index(index_wall + 2);
-                        index_wall += 4;
-
-                        manual_wall->index(index_wall);
-                        manual_wall->index(index_wall + 1);
-                        manual_wall->index(index_wall + 2);
-                        manual_wall->index(index_wall + 2);
-                        manual_wall->index(index_wall + 3);
-                        manual_wall->index(index_wall);
-                        index_wall += 4;*/
                         Quad q(-5.0 + real_start.x,5.0 + real_start.x,real_start.y + 10.0,real_end.y);q.arrange();q.y0-=10.0;q.y1+=10.0;quads.push_back(q);
                     }
 
@@ -1476,68 +1373,8 @@ class Map
                         int swap_i;
                         swap_i = start_index;start_index = end_index;end_index = swap_i;
                     }
-
-
-                        /*manual_floor->index(start_index + 1);
-                        manual_floor->index(start_index + 2);
-                        manual_floor->index(end_index);
-
-                        manual_floor->index(end_index );
-                        manual_floor->index(end_index + 3);
-                        manual_floor->index(start_index + 1);
-
-                        manual_ceiling->index(end_index);
-                        manual_ceiling->index(start_index + 2);
-                        manual_ceiling->index(start_index + 1);
-
-                        manual_ceiling->index(start_index + 1);
-                        manual_ceiling->index(end_index + 3);
-                        manual_ceiling->index(end_index);
-
-
-                        manual_wall->position(-5.0 + real_start.x, 0.0, real_start.y+10.0);
-                        manual_wall->textureCoord((-5.0 + real_start.x)*max_x,0);
-
-                        manual_wall->position(5.0 + real_end.x, 0.0, real_end.y+10.0);
-                        manual_wall->textureCoord((5.0 + real_end.x)*max_x,0);
-
-                        manual_wall->position(5.0 + real_end.x, height_y, real_end.y+10.0);
-                        manual_wall->textureCoord((5.0 + real_end.x)*max_x,text_y);
-
-                        manual_wall->position(-5.0 + real_start.x, height_y, real_start.y+10.0);
-                        manual_wall->textureCoord((-5.0 + real_start.x)*max_x,text_y);*/
-
                         Block b1;b1.constant = real_start.y+10.0;b1.differ = Vector2(-5.0 + real_start.x,5.0 + real_end.x);b1.arrange();b1.is_positive_direction = false;blocks_horizontal.push_back(b1);
-
-                        /*manual_wall->position(-5.0 + real_start.x, 0.0, real_start.y);
-                        manual_wall->textureCoord((-5.0 + real_start.x)*max_x,0);
-
-                        manual_wall->position(5.0 + real_end.x, 0.0, real_end.y);
-                        manual_wall->textureCoord((5.0 + real_end.x)*max_x,0);
-
-                        manual_wall->position(5.0 + real_end.x, height_y, real_end.y);
-                        manual_wall->textureCoord((5.0 + real_end.x)*max_x,text_y);
-
-                        manual_wall->position(-5.0 + real_start.x, height_y, real_start.y);
-                        manual_wall->textureCoord((-5.0 + real_start.x)*max_x,text_y);*/
-
                         Block b2;b2.constant = real_start.y;b2.differ = Vector2(-5.0 + real_start.x,5.0 + real_end.x);b2.arrange();b2.is_positive_direction = true;blocks_horizontal.push_back(b2);
-
-                        /*manual_wall->index(index_wall);
-                        manual_wall->index(index_wall + 1);
-                        manual_wall->index(index_wall + 2);
-                        manual_wall->index(index_wall + 2);
-                        manual_wall->index(index_wall + 3);
-                        manual_wall->index(index_wall);
-                        index_wall += 4;
-
-                        manual_wall->index(index_wall + 2);
-                        manual_wall->index(index_wall + 1);
-                        manual_wall->index(index_wall);
-                        manual_wall->index(index_wall);
-                        manual_wall->index(index_wall + 3);
-                        manual_wall->index(index_wall + 2);
-                        index_wall += 4;*/
                         Quad q(-5.0 + real_start.x,5.0 + real_end.x,real_start.y,real_start.y+10.0);q.arrange();q.x0-=10.0;q.x1+=10.0;quads.push_back(q);
 
                 }
@@ -1546,37 +1383,8 @@ class Map
 
 
             }
-            //manual_floor->end();
-            /*manual_floor->convertToMesh("Floor");
-            Entity * ent_floor = mSceneMgr->createEntity("Floor");*/
-
-            //manual_wall->end();
-            /*manual_wall->convertToMesh("Wall");
-            Entity * ent_wall = mSceneMgr->createEntity("Wall");*/
-
-            //manual_ceiling->end();
-            /*manual_ceiling->convertToMesh("Ceiling");
-            Entity * ent_ceiling = mSceneMgr->createEntity("Ceiling");*/
-
-            //StaticGeometry* all_geometry = mSceneMgr->createStaticGeometry("AllStatic");
-
-
-
-            //all_geometry->addEntity(ent_wall,Ogre::Vector3(0,0,0),Quaternion::IDENTITY,scale);
-            //all_geometry->addEntity(ent_floor,Vector3(0,0,0),Quaternion::IDENTITY,scale);
-
-            //all_geometry->addEntity(ent_ceiling,Vector3(0,0,0),Quaternion::IDENTITY,scale);
-
-
+            parse_portals();
             compact_blocks();
-
-
-            //all_geometry->build();
-
-            //cout<< "MAXIMUM"<<endl;
-            //cout<< real_max_x<<endl;
-            //cout<< real_max_y<<endl;
-
             build_random_geometry();
             quads.clear();
 
