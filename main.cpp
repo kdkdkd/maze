@@ -3,6 +3,52 @@
 #include "OIS/OIS.h"
 
 
+class GameLogicClass
+{
+    private:
+         bool allow_to_move;
+         float time_to_allow_move;
+         Camera * mCamera;
+    public:
+        GameLogicClass()
+        {
+            allow_to_move = true;
+        }
+
+        void set_camera(Camera* mCamera)
+        {
+            this->mCamera = mCamera;
+        }
+
+        bool allow_move()
+        {
+            return allow_to_move;
+        }
+        void freeze(float time)
+        {
+            time_to_allow_move = time;
+            allow_to_move = false;
+            CompositorManager::getSingleton().setCompositorEnabled(mCamera->getViewport(), "PortalCompositor", true);
+        }
+        void new_frame(float time)
+        {
+            if(!allow_to_move)
+            {
+                time_to_allow_move -= time;
+                if(time_to_allow_move<0)
+                {
+                    allow_to_move = true;
+                    CompositorManager::getSingleton().setCompositorEnabled(mCamera->getViewport(), "PortalCompositor", false);
+                }
+            }
+        }
+
+};
+GameLogicClass GameLogic;
+
+
+
+
 class MazeFrameListener;
 class Example1;
 
@@ -30,9 +76,6 @@ class MazeFrameListener : public Ogre::FrameListener
     Vector3 mTranslateVector;
     Radian mRotX, mRotY, up, down;
     Example1* main;
-    bool allow_to_move;
-    float time_to_allow_move;
-    void freeze(float time);
 
     MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main);
     bool frameRenderingQueued(const FrameEvent& evt);
@@ -45,16 +88,10 @@ class MazeFrameListener : public Ogre::FrameListener
 	Map* map;
 };
 
-    void MazeFrameListener::freeze(float time)
-    {
-        time_to_allow_move = time;
-        allow_to_move = false;
-    }
+
 
     MazeFrameListener::MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main)
     {
-        time_to_allow_move = 0.0;
-        allow_to_move = true;
         this->mCamera = mCamera;
         this->map = map;
         this->main = main;
@@ -95,15 +132,10 @@ class MazeFrameListener : public Ogre::FrameListener
 
         mKeyboard->capture();
         mMouse->capture();
-        if(!allow_to_move)
-        {
-            time_to_allow_move -= evt.timeSinceLastFrame;
-            if(time_to_allow_move<0)
-            {
-                allow_to_move = true;
-            }
-        }
-        if(allow_to_move)
+
+        GameLogic.new_frame(evt.timeSinceLastFrame);
+
+        if(GameLogic.allow_move())
 	    {
 
             mTranslateVector = Vector3::ZERO;
@@ -172,7 +204,7 @@ class MazeFrameListener : public Ogre::FrameListener
                 Portal* portal = map->find_portal(pos2d);
                 if(portal)
                 {
-                    freeze(1.0);
+                    GameLogic.freeze(1.0);
                     Vector3 in = Vector3(portal->center.x, 0, portal->center.y);
                     in.z+=5;
                     in = map->to_global_space(in);
@@ -235,7 +267,7 @@ class MazeFrameListener : public Ogre::FrameListener
         void Example1::createCamera()
         {
             mCamera = mSceneMgr->createCamera("MyCamera1");
-
+            GameLogic.set_camera(mCamera);
             //mCamera->setPolygonMode(PM_WIREFRAME);
         }
 
@@ -265,6 +297,10 @@ class MazeFrameListener : public Ogre::FrameListener
             mSceneMgr->getRootSceneNode()->addChild(nodeLight);
             ParticleSystem* partSystem = mSceneMgr->createParticleSystem("Smoke","Particles/Dust");
             nodeLight->attachObject(partSystem);
+
+
+            CompositorManager::getSingleton().addCompositor(mCamera->getViewport(), "PortalCompositor");
+
 
             /*Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
             LightEnt->setMaterialName("Main/Light");

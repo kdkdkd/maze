@@ -1,0 +1,22 @@
+fragment_program PixelPortalCompositor cg
+{
+		source pixel_portal_compositor.cg
+		entry_point PixelPortalCompositor
+		profiles ps_1_1 arbfp1
+}
+
+material Main/CompositorPortal
+{
+	technique
+	{
+		pass
+		{
+			fragment_program_ref PixelPortalCompositor
+			{	
+			}
+			texture_unit
+			{
+			}
+		}
+	}
+}
