@@ -9,6 +9,12 @@ using namespace pugi;
 using namespace std;
 using namespace Ogre;
 
+struct PortalPair
+{
+    public Vector3 color;
+    public Vector3 portal1;
+    public Vector3 portal2;
+};
 
 struct NodeDirectons
 {
@@ -124,6 +130,8 @@ class Map
         int octaves;
         int volume_y;
         int volume_z;
+
+        std::vector<Portal> portals;
 
     public:
         double center_y;
@@ -1138,6 +1146,34 @@ class Map
             all_geometry->addEntity(end,in_end,Quaternion::IDENTITY,Vector3::UNIT_SCALE*3);
 
             all_geometry->build();
+
+        }
+
+        //FILL VECTOR WITH PORTALS, PATCH BLOKS AND QUADS
+        void parse_portals()
+        {
+            xpath_node_set portals = doc.select_nodes("/map/portals/portalpair");
+
+
+            for (xpath_node_set::const_iterator it = portals.begin(); it != portals.end(); ++it)
+            {
+                Portal insert_portal;
+                xpath_node portalpair = *it;
+                if(strcmp(portalpair.node().attribute("color").value(),"red")==0)
+                {
+                    insert_portal.color = Vector3(1,0,0);
+                }else if (strcmp(portalpair.node().attribute("color").value(),"green")==0)
+                {
+                    insert_portal.color = Vector3(0,1,0);
+                }else
+                {
+                    insert_portal.color = Vector3(0,0,1);
+                }
+                portalpair
+
+
+                portals.push_back(insert_portal);
+            }
 
         }
 

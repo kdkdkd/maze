@@ -26,9 +26,9 @@ particle_system Particles/Dust
 		time0 0
 		colour0 0.8 0.8 0.5 0
 		time1 0.1
-		colour1 0.8 0.8 0.5 0.1
+		colour1 0.8 0.8 0.5 0.15
 		time2 0.9
-		colour2 0.8 0.8 0.5 0.1
+		colour2 0.8 0.8 0.5 0.15
 		time3 1
 		colour3 0.8 0.8 0.5 0
 	}

@@ -1,6 +1,12 @@
 <map>
 	<portalin point="p11"></portalin>
 	<portalout point="p45"></portalout>
+	<portals>
+		<portalpair color="red">
+			<portal x="1" y="5" direction="down" />
+			<portal x="5" y="1" direction="up" />
+		</portalpair>
+	</portals>
 	<points>
 		<point id="p11" x="1" y="1" />
 		<point id="p51" x="5" y="1" />
