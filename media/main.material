@@ -62,6 +62,8 @@ material Main/End
 		{
 			scene_blend alpha_blend
 			depth_write off
+			cull_hardware none
+            cull_software none 
 			
 			texture_unit
 			{
@@ -73,7 +75,9 @@ material Main/End
 }
 
 
-material Main/Light
+
+
+material Main/Portal
 {
 	technique
 	{
@@ -81,12 +85,16 @@ material Main/Light
 		{
 			scene_blend alpha_blend
 			depth_write off
+			cull_hardware none
+            cull_software none 
 			
 			texture_unit
 			{
-				colour_op_ex source1 src_manual src_current 1 0 1
-				alpha_op_ex source1 src_manual src_current 0.3
+				colour_op_ex source1 src_manual src_current 1 0 0
+				alpha_op_ex source1 src_manual src_current 0.2
 			}
 		}
 	}
 }
+
+

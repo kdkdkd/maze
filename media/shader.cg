@@ -70,6 +70,6 @@ void Frag(
 	oColor *=  (lightDiffuse * NdotL + ambient * oColor );
 	
 	oColor /=  distance(pos,lightpos) ;
-	oColor *= 2000.0;
+	oColor *= 3000.0;
 	
 }

@@ -9,12 +9,27 @@ using namespace pugi;
 using namespace std;
 using namespace Ogre;
 
+
+struct Portal
+{
+    Vector2 position;
+    enum Rotation
+    {
+        up,
+        down,
+        left,
+        right
+    };
+    Rotation rotation;
+};
+
 struct PortalPair
 {
     public:
     Vector3 color;
-    Vector2 portal1;
-    Vector2 portal2;
+    Portal portal1;
+    Portal portal2;
+
 };
 
 struct NodeDirectons
@@ -45,6 +60,7 @@ struct Quad
         float x1;
         float y0;
         float y1;
+
 
         Quad(float x0,float x1,float y0,float y1)
         {
@@ -1147,61 +1163,148 @@ class Map
             in_end = to_global_space(in_end);
             in_end.y = 750;
 
-
             all_geometry->addEntity(end,in_end,Quaternion::IDENTITY,Vector3::UNIT_SCALE*3);
+
+            //PORTALS
+            Entity * ent_portals = render_portals();
+            if(ent_portals)
+                all_geometry->addEntity(ent_portals,Ogre::Vector3(0,0,0),Quaternion::IDENTITY,scale);
+
+
 
             all_geometry->build();
 
         }
 
-        //INSERT PORTAL QUAD ALL WALLS
-        Vector2 add_portal(xml_node portal)
+        //RENDER ONLY ONE PORTAL
+        void render_portal(ManualObject* manual_portals, int index, Portal portal)
         {
-            Vector2 portal_out;
-            portal_out.x = to_real_x(portal.attribute("x").as_double());
-            portal_out.y = to_real_y(portal.attribute("y").as_double());
+            float dx = 8;
+            float dy = 5;
+            switch(portal.rotation)
+            {
+
+                case Portal::down:
+                     dy*=-1;
+                case Portal::up:
+
+
+
+                    manual_portals->position(portal.position.x - 5 - dx, - dx,portal.position.y - dy);
+                    manual_portals->position(portal.position.x + 5 + dx, - dx,portal.position.y - dy);
+                    manual_portals->position(portal.position.x - 5 - dx,height_y + dx,portal.position.y - dy);
+                    manual_portals->position(portal.position.x + 5 + dx,height_y + dx,portal.position.y - dy);
+
+                    manual_portals->index(index);
+                    manual_portals->index(index + 1);
+                    manual_portals->index(index + 2);
+
+
+                    manual_portals->index(index + 3);
+                    manual_portals->index(index + 2);
+                    manual_portals->index(index + 1);
+                 break;
+
+                 case Portal::right:
+                    dy*=-1;
+                 case Portal::left:
+
+                    manual_portals->position(portal.position.x-dy,-dx,portal.position.y - 2*dx);
+                    manual_portals->position(portal.position.x-dy,-dx,portal.position.y+10+ dx*0.5);
+                    manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y - 2*dx);
+                    manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y+10+ dx*0.5);
+
+                    manual_portals->index(index);
+                    manual_portals->index(index + 1);
+                    manual_portals->index(index + 2);
+
+
+                    manual_portals->index(index + 1);
+                    manual_portals->index(index + 2);
+                    manual_portals->index(index + 3);
+                 break;
+            }
+
+
+
+        }
+
+        //CREATE ENTINITY OF PORTALs
+        Entity * render_portals()
+        {
+            ManualObject*  manual_portals = mSceneMgr->createManualObject("PortalsManual");
+            manual_portals->begin("Main/Portal", RenderOperation::OT_TRIANGLE_LIST);
+
+                int index = 0;
+                for(std::vector<PortalPair>::iterator it = portals.begin();it!=portals.end();++it)
+                {
+                    render_portal(manual_portals,index,it->portal1);
+                    index += 4;
+                    render_portal(manual_portals,index,it->portal2);
+                    index += 4;
+                }
+                if(!index)
+                    return 0;
+
+
+            manual_portals->end();
+            manual_portals->convertToMesh("Portals");
+            return mSceneMgr->createEntity("Portals");
+        }
+
+        //INSERT PORTAL QUAD ALL WALLS
+        Portal add_portal(xml_node portal)
+        {
+            Portal portal_out;
+            portal_out.position.x = to_real_x(portal.attribute("x").as_double());
+            portal_out.position.y = to_real_y(portal.attribute("y").as_double());
             Quad q;
             float half_width = 5;
             float half_height = 2.5;
 
             if(!strcmp(portal.attribute("direction").value(),"up"))
             {
-                portal_out.y -= half_height;
+                portal_out.position.y -= half_height;
+                portal_out.rotation = Portal::up;
 
-                q.x0 = portal_out.x - half_width;
-                q.x1 = portal_out.x + half_width;
-                q.y0 = portal_out.y - half_height;
-                q.y1 = portal_out.y + half_height;
+                q.x0 = portal_out.position.x - half_width;
+                q.x1 = portal_out.position.x + half_width;
+                q.y0 = portal_out.position.y - half_height;
+                q.y1 = portal_out.position.y + half_height;
+
 
 
              }else if(!strcmp(portal.attribute("direction").value(),"right"))
              {
-                portal_out.x += 5 + half_height;
-                portal_out.y += 5;
+                portal_out.rotation = Portal::right;
+                portal_out.position.x += 5 + half_height;
+                portal_out.position.y += 5;
 
-                q.x0 = portal_out.x - half_height;
-                q.x1 = portal_out.x + half_height;
-                q.y0 = portal_out.y - half_width;
-                q.y1 = portal_out.y + half_width;
+                q.x0 = portal_out.position.x - half_height;
+                q.x1 = portal_out.position.x + half_height;
+                q.y0 = portal_out.position.y - half_width;
+                q.y1 = portal_out.position.y + half_width;
 
              }
              else if(!strcmp(portal.attribute("direction").value(),"left"))
              {
-                portal_out.x -= 5 + half_height;
-                portal_out.y += 5;
+                portal_out.rotation = Portal::left;
+                portal_out.position.x -= 5 + half_height;
+                portal_out.position.y += 5;
 
-                q.x0 = portal_out.x - half_height;
-                q.x1 = portal_out.x + half_height;
-                q.y0 = portal_out.y - half_width;
-                q.y1 = portal_out.y + half_width;
+                q.x0 = portal_out.position.x - half_height;
+                q.x1 = portal_out.position.x + half_height;
+                q.y0 = portal_out.position.y - half_width;
+                q.y1 = portal_out.position.y + half_width;
 
             }else //down
             {
-                portal_out.y += 10 + half_height;
-                q.x0 = portal_out.x - half_width;
-                q.x1 = portal_out.x + half_width;
-                q.y0 = portal_out.y - half_height;
-                q.y1 = portal_out.y + half_height;
+                portal_out.rotation = Portal::down;
+                portal_out.position.y += 10 + half_height;
+                q.x0 = portal_out.position.x - half_width;
+                q.x1 = portal_out.position.x + half_width;
+                q.y0 = portal_out.position.y - half_height;
+                q.y1 = portal_out.position.y + half_height;
 
 
             }
@@ -1384,8 +1487,10 @@ class Map
 
             }
             parse_portals();
+
             compact_blocks();
             build_random_geometry();
+
             quads.clear();
 
         }
