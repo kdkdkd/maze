@@ -1,4 +1,4 @@
-#include "Ogre\ExampleApplication.h"
+#include "Ogre\Ogre.h"
 #include "map.h"
 #include "OIS/OIS.h"
 
@@ -62,21 +62,31 @@ GameLogicClass GameLogic;
 
 
 class MazeFrameListener;
-class Example1;
+class Game;
 
 
-class Example1 : public ExampleApplication
+class Game
 {
     public:
         Map *map;
         MazeFrameListener* frame_listener;
         Light* light;
         SceneNode* nodeLight;
+        SceneManager* mSceneMgr;
+        Camera * mCamera;
+        Viewport * mViewport;
+        RenderWindow * mWindow;
+        Root * mRoot;
 
-        Example1();
-        ~Example1();
+        Game();
+        ~Game();
+        bool createConfig();
+        void createWindow();
+        void createSceneManager();
+        void loadRes();
         void createFrameListener();
         void createCamera();
+        void createViewport();
         void setLightPosition(Vector3 pos,double center);
         void createScene();
 };
@@ -87,9 +97,9 @@ class MazeFrameListener : public Ogre::FrameListener
 
     Vector3 mTranslateVector;
     Radian mRotX, mRotY, up, down;
-    Example1* main;
+    Game* main;
 
-    MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main);
+    MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Game* main);
     bool frameRenderingQueued(const FrameEvent& evt);
 
     Ogre::RenderWindow *win;
@@ -102,7 +112,7 @@ class MazeFrameListener : public Ogre::FrameListener
 
 
 
-    MazeFrameListener::MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main)
+    MazeFrameListener::MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Game* main)
     {
         this->mCamera = mCamera;
         this->map = map;
@@ -252,13 +262,13 @@ class MazeFrameListener : public Ogre::FrameListener
 
 
 
-        Example1::Example1()
+        Game::Game()
         {
             frame_listener = 0;
             map = 0;
 
         }
-        Example1::~Example1()
+        Game::~Game()
         {
             if(frame_listener)
             {
@@ -271,26 +281,33 @@ class MazeFrameListener : public Ogre::FrameListener
                 map = 0;
             }
         }
-        void Example1::createFrameListener()
+        void Game::createFrameListener()
         {
             frame_listener = new MazeFrameListener(mCamera,mWindow,map,this);
             mRoot->addFrameListener(frame_listener);
         }
-        void Example1::createCamera()
+        void Game::createCamera()
         {
             mCamera = mSceneMgr->createCamera("MyCamera1");
             GameLogic.set_camera(mCamera);
             //mCamera->setPolygonMode(PM_WIREFRAME);
         }
 
-        void Example1::setLightPosition(Vector3 pos,double center)
+        void Game::createViewport()
+        {
+            mViewport = mWindow->addViewport(mCamera);
+            mViewport->setBackgroundColour(ColourValue(0.0,0.0,0.0));
+            mCamera->setAspectRatio(Real(mViewport->getActualWidth())/Real(mViewport->getActualHeight()));
+        }
+
+        void Game::setLightPosition(Vector3 pos,double center)
         {
             light->setPosition(pos);
             pos.y = center;
             nodeLight->setPosition(pos);
         }
 
-        void Example1::createScene()
+        void Game::createScene()
         {
 
 
@@ -319,10 +336,51 @@ class MazeFrameListener : public Ogre::FrameListener
             nodeLight->attachObject(LightEnt);*/
         }
 
+
+        bool Game::createConfig()
+        {
+            mRoot = new Root("plugins.cfg");
+            if(!mRoot->restoreConfig())
+            {
+                if(mRoot->showConfigDialog())
+                    mRoot->saveConfig();
+                return false;
+            }
+            return true;
+        }
+        void  Game::createWindow()
+        {
+            mWindow = mRoot->initialise(true,"maze");
+        }
+        void  Game::createSceneManager()
+        {
+            mSceneMgr = mRoot->createSceneManager(ST_INTERIOR);
+        }
+        void  Game::loadRes()
+        {
+            ResourceGroupManager::getSingleton().addResourceLocation("../../../media","FileSystem");
+            ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+        }
+
 int main()
 {
-    Example1 app;
-    app.go();
+    Game g;
+
+    if(!g.createConfig())
+        return -1;
+    g.createWindow();
+    g.createSceneManager();
+
+    g.createCamera();
+    g.createViewport();
+    g.loadRes();
+    g.createScene();
+    g.createFrameListener();
+    g.mRoot->startRendering();
+
+
+
 
     return 0;
 }

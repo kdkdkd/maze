@@ -3,7 +3,7 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="labyrinth" />
-		<Option pch_mode="2" />
+		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -42,13 +42,27 @@
 			<Add directory="OgreSDK_mingw_v1-7-2\boost_1_44\lib" />
 		</Linker>
 		<Unit filename="main.cpp" />
+		<Unit filename="map.cpp">
+			<Option compile="0" />
+		</Unit>
 		<Unit filename="map.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="optimization.h" />
-		<Unit filename="xml\pugiconfig.hpp" />
-		<Unit filename="xml\pugixml.cpp" />
-		<Unit filename="xml\pugixml.hpp" />
+		<Unit filename="optimization.cpp">
+			<Option compile="0" />
+		</Unit>
+		<Unit filename="optimization.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="xml\pugiconfig.hpp">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="xml\pugixml.cpp">
+			<Option compile="0" />
+		</Unit>
+		<Unit filename="xml\pugixml.hpp">
+			<Option target="Release" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />
