@@ -60,10 +60,12 @@ struct Quad
         float x1;
         float y0;
         float y1;
+        bool strong;
 
 
         Quad(float x0,float x1,float y0,float y1)
         {
+            strong = false;
             this->x0 = x0;
             this->x1 = x1;
             this->y0 = y0;
@@ -71,6 +73,7 @@ struct Quad
         }
         Quad()
         {
+            strong = false;
 
         }
 
@@ -191,12 +194,12 @@ class Map
         //TRANSFORMATIONS
         double to_real_x(double x)
         {
-            return (x - 1.0)*40.0;
+            return (x - 1.0)*42.0;
         }
 
         double to_real_y(double y)
         {
-            return -(y)*40.0;
+            return -(y)*42.0;
         }
 
         Vector2 to_real(Vector2 point)
@@ -841,6 +844,8 @@ class Map
                         break;
                     }else
                     {
+                        if(it_quad->strong)
+                            return -1000;
 
                         in = true;
                         dx = 0.0;
@@ -1180,7 +1185,7 @@ class Map
         void render_portal(ManualObject* manual_portals, int index, Portal portal)
         {
             float dx = 8;
-            float dy = 5;
+            float dy = 7;
             switch(portal.rotation)
             {
 
@@ -1268,7 +1273,7 @@ class Map
             portal_out.position.y = to_real_y(portal.attribute("y").as_double());
             Quad q;
             float half_width = 5;
-            float half_height = 2.5;
+            float half_height = 3;
 
             if(!strcmp(portal.attribute("direction").value(),"up"))
             {
@@ -1316,7 +1321,7 @@ class Map
 
 
             }
-
+            q.strong = true;
             quads.push_back(q);
 
             Block b;

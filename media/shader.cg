@@ -64,12 +64,14 @@ void Frag(
 	
     float3 LightDir = normalize(lightpos.xyz - pos.xyz);
     
-    float NdotL = dot(LightDir, N);
+    float NdotL = saturate(dot(LightDir, N));
     
 	
 	oColor *=  (lightDiffuse * NdotL + ambient * oColor );
-	
-	oColor /=  distance(pos,lightpos) ;
+	float dist = distance(pos,lightpos);
+
+	oColor /=  distance(pos,lightpos);
 	oColor *= 3000.0;
+	
 	
 }
