@@ -2,8 +2,6 @@ void Vert(
 
 							float4 position : POSITION, 
 							float3 normal   : NORMAL,
-							//float3 tangent   : TANGENT,
-							//float3 binormal   : TEXCOORD0,
 							
   
 							uniform float4x4 worldviewproj, 

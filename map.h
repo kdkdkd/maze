@@ -1191,27 +1191,36 @@ class Map
             float dy = 5;
             float dtex  = 0.0;
             float color_multiplier = 0.6;
+            Vector3 normal;
             switch(portal.rotation)
             {
 
                 case Portal::down:
+                     normal = Vector3(0,0,-1);
                      dy*=-1;
                 case Portal::up:
-
+                     normal = Vector3(0,0,1);
 
 
                     manual_portals->position(portal.position.x - 5 - dx, - dx,portal.position.y - dy);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,-dtex);
+                    manual_portals->normal(normal);
+
                     manual_portals->position(portal.position.x + 5 + dx, - dx,portal.position.y - dy);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,-dtex);
+                    manual_portals->normal(normal);
+
                     manual_portals->position(portal.position.x - 5 - dx,height_y + dx,portal.position.y - dy);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,1+dtex);
+                    manual_portals->normal(normal);
+
                     manual_portals->position(portal.position.x + 5 + dx,height_y + dx,portal.position.y - dy);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,1+dtex);
+                    manual_portals->normal(normal);
 
                     manual_portals->index(index);
                     manual_portals->index(index + 1);
@@ -1224,21 +1233,30 @@ class Map
                  break;
 
                  case Portal::right:
+                    normal = Vector3(-1,0,0);
                     dy*=-1;
                  case Portal::left:
+                    normal = Vector3(1,0,0);
 
                     manual_portals->position(portal.position.x-dy,-dx,portal.position.y - 2*dx);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,-dtex);
+                    manual_portals->normal(normal);
+
                     manual_portals->position(portal.position.x-dy,-dx,portal.position.y+10+ dx*0.5);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,-dtex);
+                    manual_portals->normal(normal);
+
                     manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y - 2*dx);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,1+dtex);
+                    manual_portals->normal(normal);
+
                     manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y+10+ dx*0.5);
                     manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,1+dtex);
+                    manual_portals->normal(normal);
 
                     manual_portals->index(index);
                     manual_portals->index(index + 1);
