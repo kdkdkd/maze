@@ -147,6 +147,8 @@ class MazeFrameListener : public Ogre::FrameListener
 
         main->setLightPosition(mCamera->getPosition(),map->center_y);
 		mCamera->pitch(mRotY);
+
+		map->set_time(evt.timeSinceLastFrame);
 		return true;
 	}
 

@@ -140,9 +140,11 @@ class Map
         double scale_inverse;
         std::vector<Quad> quads;
         float blocks_per_point;
+        double global_time;
 
         //CONFIG CONSTANTS
         double text_y;
+        GpuProgramParametersSharedPtr params_portal;
 
 
 
@@ -187,6 +189,7 @@ class Map
             max_allowed_step = eps_dist * 0.5 * scale.x;
             blocks_per_point = 0.3;
             center_y = (height_y + 2) * scale.y * 0.5;
+            global_time = 0.0;
         }
 
 
@@ -1263,7 +1266,15 @@ class Map
 
             manual_portals->end();
             manual_portals->convertToMesh("Portals");
-            return mSceneMgr->createEntity("Portals");
+            Entity* res = mSceneMgr->createEntity("Portals");
+            for ( int iSubEntity = 0; iSubEntity < (int)res->getNumSubEntities(); ++iSubEntity )
+            {
+                MaterialPtr pMaterial = res->getSubEntity( iSubEntity )->getMaterial();
+                Technique* pTechnique = pMaterial->getBestTechnique();
+                Pass* pPass = pTechnique->getPass( 0 );
+                params_portal = pPass->getFragmentProgramParameters();
+            }
+            return res;
         }
 
         //INSERT PORTAL QUAD ALL WALLS
@@ -1507,6 +1518,17 @@ class Map
 
             quads.clear();
 
+        }
+
+
+        //SET TIME FOR RENDERING
+        void set_time(double time)
+        {
+            global_time+=time*10;
+            if ( params_portal->_findNamedConstantDefinition( "time"))
+            {
+                params_portal->setNamedConstant( "time", Real(global_time*0.01) );
+            }
         }
 
 };

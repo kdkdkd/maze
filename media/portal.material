@@ -14,7 +14,10 @@ vertex_program VertPortal cg
 fragment_program FragPortal cg 
  { 
        source shader_portal.cg 
-   
+	   default_params 
+       {
+				param_named time float 0
+       } 
        entry_point FragPortal
        profiles ps_2_0 arbfp1
  }
@@ -35,7 +38,8 @@ material Main/Portal
             { 
             }
 			fragment_program_ref FragPortal
-            { 
+            {
+				
             } 
 			
 			texture_unit
