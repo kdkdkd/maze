@@ -8,7 +8,7 @@
 		</portalpair>
 		<portalpair color="blue">
 			<portal x="5" y="3" direction="right" />
-			<portal x="1" y="1" direction="left" />
+			<portal x="1" y="3" direction="left" />
 		</portalpair>
 	</portals>
 	<points>

@@ -3,7 +3,7 @@
 #include "OIS/OIS.h"
 
 
-class GameLogicClass
+class GameLogicClass :public CompositorInstance::Listener
 {
     private:
          bool allow_to_move;
@@ -24,11 +24,13 @@ class GameLogicClass
         {
             return allow_to_move;
         }
-        void freeze(float time)
+        void freeze()
         {
-            time_to_allow_move = time;
+            time_to_allow_move = 1;
             allow_to_move = false;
+
             CompositorManager::getSingleton().setCompositorEnabled(mCamera->getViewport(), "PortalCompositor", true);
+
         }
         void new_frame(float time)
         {
@@ -41,6 +43,16 @@ class GameLogicClass
                     CompositorManager::getSingleton().setCompositorEnabled(mCamera->getViewport(), "PortalCompositor", false);
                 }
             }
+        }
+
+        void notifyMaterialSetup (uint32 pass_id, MaterialPtr &mat)
+        {
+            mat->getBestTechnique()->getPass(pass_id)->getFragmentProgramParameters()->setNamedConstant("multiply",Real(1.0/exp(10.0)));
+
+        }
+        void notifyMaterialRender(uint32 pass_id, MaterialPtr &mat)
+        {
+            mat->getBestTechnique()->getPass(pass_id)->getFragmentProgramParameters()->setNamedConstant("multiply",Real(1.0/exp(10.0 * time_to_allow_move)));
         }
 
 };
@@ -204,7 +216,7 @@ class MazeFrameListener : public Ogre::FrameListener
                 Portal* portal = map->find_portal(pos2d);
                 if(portal)
                 {
-                    GameLogic.freeze(1.0);
+                    GameLogic.freeze();
                     Vector3 in = Vector3(portal->center.x, 0, portal->center.y);
                     in.z+=5;
                     in = map->to_global_space(in);
@@ -300,7 +312,7 @@ class MazeFrameListener : public Ogre::FrameListener
 
 
             CompositorManager::getSingleton().addCompositor(mCamera->getViewport(), "PortalCompositor");
-
+            CompositorManager::getSingleton().getCompositorChain(mCamera->getViewport())->getCompositor("PortalCompositor")->addListener(&GameLogic);
 
             /*Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
             LightEnt->setMaterialName("Main/Light");
