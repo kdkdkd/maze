@@ -240,6 +240,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
                 Vector3 after = mCamera->getPosition();
                 //cout<<after<<endl;
+                //cout<<main->mWindow->getStatistics().triangleCount<<endl;
                 if(map->correct_position(before,after))
                 {
                     mCamera->setPosition(after);

@@ -1136,8 +1136,7 @@ void Map::build_random_geometry()
                 optim.processMesh(mesh);
 
                 Entity * ent_geometry = mSceneMgr->createEntity("GeometryEntinity" + StringConverter::toString(mesh_index),"Geometry" + StringConverter::toString(mesh_index));
-
-                geometry_node->attachObject(ent_geometry);
+                geometry_node->createChildSceneNode("geometry" + StringConverter::toString(mesh_index))->attachObject(ent_geometry);
                 index = 0;
                 mesh_index += 1;
                 manual_geometry = mSceneMgr->createManualObject();
