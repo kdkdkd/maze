@@ -5,6 +5,7 @@ vertex_program VertPortal cg
        default_params 
        { 
 			param_named_auto worldviewproj worldviewproj_matrix
+			//param_named_auto lightPosition light_position_object_space 0
        } 
 	
        entry_point VertPortal 

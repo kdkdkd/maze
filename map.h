@@ -1185,11 +1185,12 @@ class Map
         }
 
         //RENDER ONLY ONE PORTAL
-        void render_portal(ManualObject* manual_portals, int index, Portal portal)
+        void render_portal(ManualObject* manual_portals, int index, Portal portal, Vector3 color)
         {
             float dx = 8;
             float dy = 5;
             float dtex  = 0.0;
+            float color_multiplier = 0.6;
             switch(portal.rotation)
             {
 
@@ -1200,12 +1201,16 @@ class Map
 
 
                     manual_portals->position(portal.position.x - 5 - dx, - dx,portal.position.y - dy);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,-dtex);
                     manual_portals->position(portal.position.x + 5 + dx, - dx,portal.position.y - dy);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,-dtex);
                     manual_portals->position(portal.position.x - 5 - dx,height_y + dx,portal.position.y - dy);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,1+dtex);
                     manual_portals->position(portal.position.x + 5 + dx,height_y + dx,portal.position.y - dy);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,1+dtex);
 
                     manual_portals->index(index);
@@ -1223,12 +1228,16 @@ class Map
                  case Portal::left:
 
                     manual_portals->position(portal.position.x-dy,-dx,portal.position.y - 2*dx);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,-dtex);
                     manual_portals->position(portal.position.x-dy,-dx,portal.position.y+10+ dx*0.5);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,-dtex);
                     manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y - 2*dx);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(-dtex,1+dtex);
                     manual_portals->position(portal.position.x-dy,height_y + dx,portal.position.y+10+ dx*0.5);
+                    manual_portals->colour(color.x*color_multiplier,color.y*color_multiplier,color.z*color_multiplier,0);
                     manual_portals->textureCoord(1+dtex,1+dtex);
 
                     manual_portals->index(index);
@@ -1255,9 +1264,9 @@ class Map
                 int index = 0;
                 for(std::vector<PortalPair>::iterator it = portals.begin();it!=portals.end();++it)
                 {
-                    render_portal(manual_portals,index,it->portal1);
+                    render_portal(manual_portals,index,it->portal1,it->color);
                     index += 4;
-                    render_portal(manual_portals,index,it->portal2);
+                    render_portal(manual_portals,index,it->portal2,it->color);
                     index += 4;
                 }
                 if(!index)
