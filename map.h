@@ -113,7 +113,8 @@ class Map
 
         //CONFIG CONSTANTS
         double text_y;
-        double height_y;
+
+
 
         std::vector<Block> blocks_vertical;
         std::vector<Block> blocks_horizontal;
@@ -125,6 +126,8 @@ class Map
         int volume_z;
 
     public:
+        double center_y;
+        double height_y;
         Vector3 scale;
         double eps_dist;
         double max_allowed_step;
@@ -151,6 +154,7 @@ class Map
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
             blocks_per_point = 0.3;
+            center_y = (height_y + 2) * scale.y * 0.5;
         }
 
 

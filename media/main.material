@@ -6,7 +6,6 @@ vertex_program Vert cg
        { 
 			param_named_auto worldviewproj worldviewproj_matrix
 			param_named_auto lightPosition light_position_object_space 0
-			param_named_auto eyePosition camera_position_object_space
        } 
 	   
 	   
@@ -53,11 +52,6 @@ material Main/Cave
 			{
 				texture noise.png
 			}
-			texture_unit
-			{
-				texture normal.png
-			}
-			
 		}
 	}
 }

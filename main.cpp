@@ -13,13 +13,13 @@ class Example1 : public ExampleApplication
         Map *map;
         MazeFrameListener* frame_listener;
         Light* light;
-        //SceneNode* nodeLight;
+        SceneNode* nodeLight;
 
         Example1();
         ~Example1();
         void createFrameListener();
         void createCamera();
-        void setLightPosition(Vector3 pos);
+        void setLightPosition(Vector3 pos,double center);
         void createScene();
 };
 
@@ -145,7 +145,7 @@ class MazeFrameListener : public Ogre::FrameListener
             }
         }
 
-        main->setLightPosition(mCamera->getPosition() + Vector3(0,1000,0));
+        main->setLightPosition(mCamera->getPosition(),map->center_y);
 		mCamera->pitch(mRotY);
 		return true;
 	}
@@ -183,10 +183,11 @@ class MazeFrameListener : public Ogre::FrameListener
             //mCamera->setPolygonMode(PM_WIREFRAME);
         }
 
-        void Example1::setLightPosition(Vector3 pos)
+        void Example1::setLightPosition(Vector3 pos,double center)
         {
             light->setPosition(pos);
-            //nodeLight->setPosition(pos);
+            pos.y = center;
+            nodeLight->setPosition(pos);
         }
 
         void Example1::createScene()
@@ -204,11 +205,12 @@ class MazeFrameListener : public Ogre::FrameListener
             light->setDiffuseColour(Ogre::ColourValue(0.6f,0.6f,0.3f));
             //light->setSpecularColour(Ogre::ColourValue(1.0f,1.0f,1.0f));
 
-            /*nodeLight = mSceneMgr->createSceneNode("LightNode1");
+            nodeLight = mSceneMgr->createSceneNode("LightNode1");
             mSceneMgr->getRootSceneNode()->addChild(nodeLight);
+            ParticleSystem* partSystem = mSceneMgr->createParticleSystem("Smoke","Particles/Dust");
+            nodeLight->attachObject(partSystem);
 
-
-            Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
+            /*Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
             LightEnt->setMaterialName("Main/Light");
             nodeLight->attachObject(LightEnt);*/
         }

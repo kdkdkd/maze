@@ -1,0 +1,37 @@
+
+particle_system Particles/Dust
+{
+	material        	Main/Dust
+	particle_width  	40
+	particle_height 	40
+	quota           	400
+	billboard_type  	point
+	sorted				true
+    
+	emitter Box
+	{
+		height 30000
+		width 30000
+		depth 4000
+		direction 0 -1 0
+		angle 90
+		emission_rate 100
+		time_to_live 4
+		velocity 100
+		colour0 0.8 0.8 0.5 0
+	}
+	
+	affector ColourInterpolator
+	{
+		time0 0
+		colour0 0.8 0.8 0.5 0
+		time1 0.1
+		colour1 0.8 0.8 0.5 0.1
+		time2 0.9
+		colour2 0.8 0.8 0.5 0.1
+		time3 1
+		colour3 0.8 0.8 0.5 0
+	}
+
+}
+

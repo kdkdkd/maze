@@ -87,6 +87,6 @@ void Frag(
     float NdotL = dot(LightDir, N);
     
 	
-	oColor *=  2000.0 * (lightDiffuse * NdotL + ambient * oColor )/ distance(pos,lightpos) ;
+	oColor *=  3000.0 * (lightDiffuse * NdotL + ambient * oColor )/ distance(pos,lightpos) ;
 	
 }
