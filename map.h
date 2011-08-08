@@ -143,7 +143,7 @@ class Map
             height_y = 10.0;
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
-            blocks_per_point = 1;
+            blocks_per_point = 1.0;
         }
 
 
@@ -151,12 +151,12 @@ class Map
         //TRANSFORMATIONS
         double to_real_x(double x)
         {
-            return (x - 1.0)*18.0;
+            return (x - 1.0)*20.0;
         }
 
         double to_real_y(double y)
         {
-            return -(y)*18.0;
+            return -(y)*20.0;
         }
 
         Vector2 to_real(Vector2 point)
@@ -745,7 +745,7 @@ class Map
             float dx = 0.0;
             float dy = 0.0;
             float dz = 0.0;
-
+            bool in = false;
 
             if(j > height_y)
                 dy = j - height_y;
@@ -761,10 +761,48 @@ class Map
             {
                 if(it_quad->is_in_quad(i,k))
                 {
-                    dx = 0.0;
-                    dz = 0.0;
-                    break;
-                }else
+                    if(!in)
+                    {
+                        was_res = false;
+                        float dist_2d = 0.0;
+                        dx = 0.0;
+                        dy = 0.0;
+                        dz = 0.0;
+
+                    }
+                    in = true;
+
+                    float dx_candidate = 0.0;
+                    float dz_candidate = 0.0;
+
+                    if(i < it_quad->x0)
+                    {
+                        dx_candidate = it_quad->x0 - i;
+                    }else if(i > it_quad->x1)
+                    {
+                        dx_candidate = i - it_quad->x1;
+                    }
+
+
+                    if(k < it_quad->y0)
+                    {
+                        dz_candidate = it_quad->y0 - k;
+                    }else if(k > it_quad->y1)
+                    {
+                        dz_candidate = k - it_quad->y1;
+                    }
+
+                    float dist_candidate = dx_candidate * dx_candidate + dz_candidate * dz_candidate;
+
+                    if(!was_res || dist_candidate < dist_2d)
+                    {
+                        dist_2d = dist_candidate;
+                        dz = dz_candidate;
+                        dx = dx_candidate;
+                        was_res = true;
+                    }
+
+                }else if(!in)
                 {
 
                     float dx_candidate = 0.0;
@@ -869,7 +907,7 @@ class Map
             //res += volume[(2*i)%volume_x][(2*j)%volume_y][(2*k)%volume_z] * 0.5;
             //res += volume[(4*i)%volume_x][(4*j)%volume_y][(4*k)%volume_z] * 0.25;
 
-            float res = get_squared_distance_to_void(i,j,k);
+            float dist = get_squared_distance_to_void(i,j,k);
             /*float m = 6.0;
             float m_reserve = 1.0 / m;
             if(res>m)
@@ -877,7 +915,29 @@ class Map
 
              /*if(j>10)
                 return 1.0;*/
-            return (res<0.001)?1.0:-1.0;
+
+
+
+            float res = -1.0;
+
+            if(dist<.01)
+                return -1.0;
+
+            float mult = 0.1;
+            if(j<0)
+                mult = 0.3;
+
+
+            res = dist*mult + get_volume_point(0,i*0.2,j*0.2,k*0.2) * 3.0 /*+ get_volume_point(0,i*0.4,j*0.4,k*0.4) * 1.5 + get_volume_point(0,i*0.8,j*0.8,k*0.8) * 0.75*/;
+
+
+            if(res>1.0)
+                res = 1.0;
+            else if(res<-1.0)
+                res = -1.0;
+
+
+            return res;
 
         }
 
@@ -906,9 +966,9 @@ class Map
             int mz = (real_max_y - 5.0)* blocks_per_point;
             float blocks_per_point_reverse = 1.0 / blocks_per_point;
 
-            for(int i_int = -10.0 * blocks_per_point;i_int<mx;++i_int)
-                for(int j_int = -2.0 * blocks_per_point;j_int<my;++j_int)
-                    for(int k_int = 0;k_int>mz;--k_int)
+            for(int i_int = -20.0 * blocks_per_point;i_int<mx + 20.0 * blocks_per_point;++i_int)
+                for(int j_int = -4.0 * blocks_per_point;j_int<my + 20.0 * blocks_per_point;++j_int)
+                    for(int k_int = 20 * blocks_per_point;k_int>mz - 20.0 * blocks_per_point;--k_int)
                         {
 
                             float i = i_int*blocks_per_point_reverse;
