@@ -732,42 +732,75 @@ class Map
             }
         }
 
-        float get_distance_to_void(float i,float j,float k)
+        float get_squared_distance_to_void(float i,float j,float k)
         {
 
             /*if(j>height_y)
                 res.x = (j-height_y)*(j-height_y);
             else if(j<0)
                 res.x = j * j;*/
-            float res = 0.0;
+
             bool was_res = false;
+            float dist_2d = 0.0;
+            float dx = 0.0;
+            float dy = 0.0;
+            float dz = 0.0;
+
+
+            if(j > height_y)
+                dy = j - height_y;
+            else if(j < 0)
+                dy = j;
+
+
+
+
+
+
             for(std::vector<Quad>::iterator it_quad = quads.begin();it_quad!=quads.end();it_quad++)
             {
                 if(it_quad->is_in_quad(i,k))
                 {
-                    if(j>height_y)
-                        return (j-height_y)*(j-height_y);
-                    else if(j<0)
-                        return j * j;
-                    return 0.0;
+                    dx = 0.0;
+                    dz = 0.0;
+                    break;
                 }else
                 {
-                    if(i>=it_quad->x0 && i<=it_quad->x1)
+
+                    float dx_candidate = 0.0;
+                    float dz_candidate = 0.0;
+
+                    if(i < it_quad->x0)
                     {
-
-
+                        dx_candidate = it_quad->x0 - i;
+                    }else if(i > it_quad->x1)
+                    {
+                        dx_candidate = i - it_quad->x1;
                     }
 
-                    if(j>height_y)
-                        return (j-height_y)*(j-height_y);
-                    else if(j<0)
-                        return j * j;
-                    else
+
+                    if(k < it_quad->y0)
+                    {
+                        dz_candidate = it_quad->y0 - k;
+                    }else if(k > it_quad->y1)
+                    {
+                        dz_candidate = k - it_quad->y1;
+                    }
+
+                    float dist_candidate = dx_candidate * dx_candidate + dz_candidate * dz_candidate;
+
+                    if(!was_res || dist_candidate < dist_2d)
+                    {
+                        dist_2d = dist_candidate;
+                        dz = dz_candidate;
+                        dx = dx_candidate;
+                        was_res = true;
+                    }
 
                 }
             }
 
-            return 1.0;
+            return dx*dx + dy*dy + dz*dz;
         }
 
         //GET POINT FROM VOLUME OF RANDOM NUMBERS
@@ -777,14 +810,14 @@ class Map
             float gj = fabs(j);
             float gk = fabs(k);
             int x0 = floor(gi);
-            int x1 = ceil(gj);
-            int y0 = floor(gk);
-            int y1 = ceil(j);
-            int z0 = floor(k);
-            int z1 = ceil(k);
-            float xd = i - x0;
-            float yd = j - y0;
-            float zd = k - z0;
+            int x1 = ceil(gi);
+            int y0 = floor(gj);
+            int y1 = ceil(gj);
+            int z0 = floor(gk);
+            int z1 = ceil(gk);
+            float xd = gi - x0;
+            float yd = gj - y0;
+            float zd = gk - z0;
 
             float i1 = volume[volume_index][x0%volume_x][y0%volume_y][z0%volume_z]*(1-zd) + volume[volume_index][x0%volume_x][y0%volume_y][z1%volume_z]*(zd);
             float i2 = volume[volume_index][x0%volume_x][y1%volume_y][z0%volume_z]*(1-zd) + volume[volume_index][x0%volume_x][y1%volume_y][z1%volume_z]*(zd);
@@ -836,14 +869,15 @@ class Map
             //res += volume[(2*i)%volume_x][(2*j)%volume_y][(2*k)%volume_z] * 0.5;
             //res += volume[(4*i)%volume_x][(4*j)%volume_y][(4*k)%volume_z] * 0.25;
 
-            float res = get_distance_to_void(i,j,k);
+            float res = get_squared_distance_to_void(i,j,k);
+            /*float m = 6.0;
+            float m_reserve = 1.0 / m;
+            if(res>m)
+                return m;*/
 
-            /*if(j>10)
+             /*if(j>10)
                 return 1.0;*/
-            return (res<0.1)?1.0:-1.0;
-
-
-           // return get_volume_point(0,i,j,k);
+            return (res<0.001)?1.0:-1.0;
 
         }
 
