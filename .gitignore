@@ -1,0 +1,5 @@
+bin
+obj
+OgreSDK_mingw_v1-7-2
+*.layout
+*.depend
