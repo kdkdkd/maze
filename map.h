@@ -143,7 +143,7 @@ class Map
             height_y = 10.0;
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
-            blocks_per_point = 0.6;
+            blocks_per_point = 0.4;
         }
 
 
@@ -661,18 +661,19 @@ class Map
         //GET NORMAL ON RANDOM GENERATED GEOMETRY
         Vector3 get_normal(Vector3 point)
         {
-
+            if(point.y<0.01)
+                return Vector3::UNIT_Y;
             //cout<<"get_normal"<<point.x<<" "<<point.y<<" "<<point.z<<" "<<endl;
-            float d = 0.1;
+            float d = 0.05;
             Vector3 grad = Vector3(0,0,0);
             while(fabs(grad.x)<0.001 && fabs(grad.y)<0.001 && fabs(grad.z)<0.001)
             {
                 grad.x = get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z);
                 grad.y = get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z);
                 grad.z = get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d);
-                d*=2;
+                d *=2;
             }
-
+            //cout<<get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z)<<"  "<<get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z)<<"   "<<get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d)<<"Normal"<<endl;
             grad.normalise();
             return -grad;
             //return Vector3(0,1,0);
@@ -698,6 +699,7 @@ class Map
 
             int triangles = num_of_edge[edge_index];
             //cout<<triangles<<endl;
+            float blocks_per_point_reverse = 1.0 / blocks_per_point;
             for(int triangle = 0;triangle<triangles;triangle++)
             {
                 int edge_1 = edge[edge_index][triangle*3];
@@ -709,13 +711,13 @@ class Map
                 Vector3 point3 = (get_point(edge_3,density) + start);
 
                 manual->position(point1 * dim);
-                manual->normal(get_normal(point1));
+                manual->normal(get_normal(point1*blocks_per_point_reverse));
 
                 manual->position(point2 * dim);
-                manual->normal(get_normal(point2));
+                manual->normal(get_normal(point2*blocks_per_point_reverse));
 
                 manual->position(point3 * dim);
-                manual->normal(get_normal(point3));
+                manual->normal(get_normal(point3*blocks_per_point_reverse));
 
 
                 manual->index(index);
@@ -948,7 +950,7 @@ class Map
             float res = 0.0;
 
 
-            float mult = 0.1;
+            float mult = 0.08;
             if(j<0)
                 mult = 6.0;
 
@@ -963,10 +965,10 @@ class Map
 
 
 
-                res += get_volume_point(0,i*0.05,j*0.05,k*0.05) * mult_random;
+                res += get_volume_point(0,i*0.08,j*0.08,k*0.08) * mult_random;
                 //res += get_volume_point(1,i*0.1,j*0.1,k*0.1) * mult_random *0.5;
                 //res += get_volume_point(2,i*0.2,j*0.2,k*0.2) * mult_random *0.25;
-                //res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * mult_random * 0.5;
+                //res += get_volume_point(3,i*0.4,j*0.4,k*0.4) * mult_random * 0.025;
                 /*res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 5.0;
                 res += get_volume_point(0,i*0.4,j*0.4,k*0.4) * 2.0;*/
             /*res += get_volume_point(1,i*0.4,j*0.4,k*0.4) * 1.5;
@@ -985,6 +987,7 @@ class Map
         //BUILD RANDOM GEOMETRY
         void build_random_geometry()
         {
+            srand ( time(NULL) );
             for(int i = 0;i<volume_x;++i)
                 for(int j = 0;j<volume_y;++j)
                     for(int k = 0;k<volume_z;++k)

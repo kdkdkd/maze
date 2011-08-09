@@ -40,7 +40,7 @@ class MazeFrameListener : public Ogre::FrameListener
 	    mMouse->capture();
 
 	    mTranslateVector = Vector3::ZERO;
-		double moveScale = 3500*evt.timeSinceLastFrame;
+		double moveScale = 4000*evt.timeSinceLastFrame;
 
 		if(moveScale>map->max_allowed_step)
 		{

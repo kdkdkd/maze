@@ -37,6 +37,6 @@ void Frag(
 	float4 col2 = tex2D(texture,pos.xz * 0.001);  
 	float4 col3 = tex2D(texture,pos.yz * 0.001);  
 	
-    oColor =  col1.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col3.xyzw * blend_weights.zzzz;
-	
+    oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
+	//oColor =  abs( normalize(norm) );
 }
