@@ -143,7 +143,7 @@ class Map
             height_y = 10.0;
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
-            blocks_per_point = 1.0;
+            blocks_per_point = 0.6;
         }
 
 
@@ -964,7 +964,9 @@ class Map
 
 
 
-                res += get_volume_point(0,i*0.1,j*0.1,k*0.1) * mult_random;
+                res += get_volume_point(0,i*0.05,j*0.05,k*0.05) * mult_random;
+                //res += get_volume_point(1,i*0.1,j*0.1,k*0.1) * mult_random *0.5;
+                //res += get_volume_point(2,i*0.2,j*0.2,k*0.2) * mult_random *0.25;
                 //res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * mult_random * 0.5;
                 /*res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 5.0;
                 res += get_volume_point(0,i*0.4,j*0.4,k*0.4) * 2.0;*/
