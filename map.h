@@ -663,12 +663,15 @@ class Map
         {
 
             //cout<<"get_normal"<<point.x<<" "<<point.y<<" "<<point.z<<" "<<endl;
-            float d = 0.2;
-            Vector3 grad;
-
-            grad.x = get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z);
-            grad.y = get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z);
-            grad.z = get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d);
+            float d = 0.1;
+            Vector3 grad = Vector3(0,0,0);
+            while(fabs(grad.x)<0.001 && fabs(grad.y)<0.001 && fabs(grad.z)<0.001)
+            {
+                grad.x = get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z);
+                grad.y = get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z);
+                grad.z = get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d);
+                d*=2;
+            }
 
             grad.normalise();
             return -grad;
@@ -706,16 +709,12 @@ class Map
                 Vector3 point3 = (get_point(edge_3,density) + start);
 
                 manual->position(point1 * dim);
-                manual->textureCoord(0,0);
                 manual->normal(get_normal(point1));
 
-
                 manual->position(point2 * dim);
-                manual->textureCoord(0,1);
                 manual->normal(get_normal(point2));
 
                 manual->position(point3 * dim);
-                manual->textureCoord(1,1);
                 manual->normal(get_normal(point3));
 
 
@@ -996,7 +995,7 @@ class Map
 
 
             ManualObject*  manual_geometry = mSceneMgr->createManualObject("GeometryManual");
-            manual_geometry->begin("Examples/BeachStones", RenderOperation::OT_TRIANGLE_LIST);
+            manual_geometry->begin("Main/Cave", RenderOperation::OT_TRIANGLE_LIST);
 
 
 

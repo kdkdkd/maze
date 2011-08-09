@@ -1,0 +1,44 @@
+vertex_program Vert cg 
+{ 
+       source shader.cg 
+ 
+       default_params 
+       { 
+		param_named_auto worldviewproj worldviewproj_matrix
+       } 
+ 
+       entry_point Vert 
+       profiles vs_1_1 arbvp1 
+}
+ 
+fragment_program Frag cg 
+ { 
+       source shader.cg 
+ 
+ 
+       entry_point Frag
+       profiles ps_1_1 arbfp1
+ }
+
+material Main/Cave
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+            cull_software none 
+
+			vertex_program_ref Vert
+            { 
+            }
+			fragment_program_ref Frag
+            { 
+            } 
+			texture_unit
+			{
+				texture RustedMetal.jpg
+			}
+		}
+	}
+}
