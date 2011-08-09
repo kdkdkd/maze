@@ -151,12 +151,12 @@ class Map
         //TRANSFORMATIONS
         double to_real_x(double x)
         {
-            return (x - 1.0)*20.0;
+            return (x - 1.0)*30.0;
         }
 
         double to_real_y(double y)
         {
-            return -(y)*20.0;
+            return -(y)*30.0;
         }
 
         Vector2 to_real(Vector2 point)
@@ -750,7 +750,7 @@ class Map
             if(j > height_y)
                 dy = j - height_y;
             else if(j < 0)
-                dy = j;
+                dy = -j;
 
 
 
@@ -761,48 +761,74 @@ class Map
             {
                 if(it_quad->is_in_quad(i,k))
                 {
-                    if(!in)
+
+                    if(dy>0.001)
                     {
-                        was_res = false;
-                        float dist_2d = 0.0;
                         dx = 0.0;
-                        dy = 0.0;
                         dz = 0.0;
+                        break;
+                    }else
+                    {
 
+                        in = true;
+                        dx = 0.0;
+                        dz = 0.0;
+                        dist_2d = 0.0;
+
+                        was_res = false;
+                        dy = height_y - j;
+                        if(j<dy)
+                            dy = j;
+
+
+                        for(std::vector<Block>::iterator it = blocks_vertical.begin();it != blocks_vertical.end();it++)
+                        {
+                            float dx_candidate = 0.0;
+                            float dz_candidate = 0.0;
+
+                            dx_candidate = fabs(it->constant - i);
+                            if(k>it->differ.y)
+                                dz_candidate = k - it->differ.y;
+                            if(k<it->differ.x)
+                                dz_candidate = it->differ.x - k;
+
+                            float dist_candidate = dx_candidate * dx_candidate + dz_candidate * dz_candidate;
+
+                            if(!was_res || dist_candidate < dist_2d)
+                            {
+                                dist_2d = dist_candidate;
+                                dz = dz_candidate;
+                                dx = dx_candidate;
+                                was_res = true;
+                            }
+                        }
+
+
+                        for(std::vector<Block>::iterator it = blocks_horizontal.begin();it != blocks_horizontal.end();it++)
+                        {
+                            float dx_candidate = 0.0;
+                            float dz_candidate = 0.0;
+
+                            dz_candidate = fabs(it->constant - k);
+                            if(i>it->differ.y)
+                                dx_candidate = i - it->differ.y;
+                            if(i<it->differ.x)
+                                dx_candidate = it->differ.x - i;
+
+                            float dist_candidate = dx_candidate * dx_candidate + dz_candidate * dz_candidate;
+
+                            if(!was_res || dist_candidate < dist_2d)
+                            {
+                                dist_2d = dist_candidate;
+                                dz = dz_candidate;
+                                dx = dx_candidate;
+                                was_res = true;
+                            }
+                        }
+                        break;
                     }
-                    in = true;
 
-                    float dx_candidate = 0.0;
-                    float dz_candidate = 0.0;
-
-                    if(i < it_quad->x0)
-                    {
-                        dx_candidate = it_quad->x0 - i;
-                    }else if(i > it_quad->x1)
-                    {
-                        dx_candidate = i - it_quad->x1;
-                    }
-
-
-                    if(k < it_quad->y0)
-                    {
-                        dz_candidate = it_quad->y0 - k;
-                    }else if(k > it_quad->y1)
-                    {
-                        dz_candidate = k - it_quad->y1;
-                    }
-
-                    float dist_candidate = dx_candidate * dx_candidate + dz_candidate * dz_candidate;
-
-                    if(!was_res || dist_candidate < dist_2d)
-                    {
-                        dist_2d = dist_candidate;
-                        dz = dz_candidate;
-                        dx = dx_candidate;
-                        was_res = true;
-                    }
-
-                }else if(!in)
+                }else
                 {
 
                     float dx_candidate = 0.0;
@@ -837,8 +863,10 @@ class Map
 
                 }
             }
-
-            return dx*dx + dy*dy + dz*dz;
+            float res = dx*dx + dy*dy + dz*dz;
+            if(in)
+                res *= -1.0;
+            return res;
         }
 
         //GET POINT FROM VOLUME OF RANDOM NUMBERS
@@ -918,18 +946,30 @@ class Map
 
 
 
-            float res = -1.0;
+            float res = 0.0;
 
-            if(dist<.01)
-                return -1.0;
 
             float mult = 0.1;
             if(j<0)
-                mult = 0.3;
+                mult = 6.0;
 
 
-            res = dist*mult + get_volume_point(0,i*0.2,j*0.2,k*0.2) * 3.0 /*+ get_volume_point(0,i*0.4,j*0.4,k*0.4) * 1.5 + get_volume_point(0,i*0.8,j*0.8,k*0.8) * 0.75*/;
+            float mult_random = j + 1;
+            if(mult_random<0.0)
+                mult_random = 0.0;
 
+            res = dist * mult - 3;
+            //res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 3.0;
+
+
+
+
+                res += get_volume_point(0,i*0.1,j*0.1,k*0.1) * mult_random;
+                //res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * mult_random * 0.5;
+                /*res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 5.0;
+                res += get_volume_point(0,i*0.4,j*0.4,k*0.4) * 2.0;*/
+            /*res += get_volume_point(1,i*0.4,j*0.4,k*0.4) * 1.5;
+            res += get_volume_point(2,i*0.8,j*0.8,k*0.8) * 0.75;*/
 
             if(res>1.0)
                 res = 1.0;
