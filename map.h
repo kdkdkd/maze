@@ -143,7 +143,7 @@ class Map
             height_y = 10.0;
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
-            blocks_per_point = 0.4;
+            blocks_per_point = 0.5;
         }
 
 
@@ -661,8 +661,8 @@ class Map
         //GET NORMAL ON RANDOM GENERATED GEOMETRY
         Vector3 get_normal(Vector3 point)
         {
-            if(point.y<0.01)
-                return Vector3::UNIT_Y;
+            /*if(point.y<0.01)
+                return Vector3::UNIT_Y;*/
             //cout<<"get_normal"<<point.x<<" "<<point.y<<" "<<point.z<<" "<<endl;
             float d = 0.05;
             Vector3 grad = Vector3(0,0,0);
@@ -671,7 +671,7 @@ class Map
                 grad.x = get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z);
                 grad.y = get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z);
                 grad.z = get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d);
-                d *=2;
+                d *= 2;
             }
             //cout<<get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z)<<"  "<<get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z)<<"   "<<get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d)<<"Normal"<<endl;
             grad.normalise();
@@ -950,25 +950,45 @@ class Map
             float res = 0.0;
 
 
-            float mult = 0.08;
+            float mult = 0.1;
+            /*if(j<0)
+                mult = 6.0;*/
+
+
+            float mult_random = (j + 1);
+            /*if(mult_random<0.0)
+                mult_random = 0.0;*/
+
             if(j<0)
-                mult = 6.0;
+                res = dist * mult + get_volume_point(2,i*0.8,j*0.8,k*0.8) * 0.5;
+            else
+            {
+                res = dist * mult - 3;
 
 
-            float mult_random = j + 1;
-            if(mult_random<0.0)
-                mult_random = 0.0;
+                res += get_volume_point(0,i*0.1,j*0.02,k*0.1) * mult_random*0.7;
 
-            res = dist * mult - 3;
+                /*float warpx = get_volume_point(1, i*0.1, j*0.1, k*0.1 );
+                float warpy = get_volume_point(4, i*0.1, j*0.1, k*0.1 );
+                float warpz = get_volume_point(5, i*0.1, j*0.1, k*0.1 );
+                i += warpx * 16;
+                j += warpy * 16;
+                k += warpz * 16;*/
+                res += get_volume_point(3,i*0.5,j*0.04,k*0.5) * mult_random * 0.5;
+                /*res += get_volume_point(4,i*1.0,j*1.0,k*1.0) * mult_random * 0.3;
+                res += get_volume_point(5,i*2.0,j*2.0,k*2.0) * mult_random * 0.3 * 0.5;
+                res += get_volume_point(6,i*4.0,j*4.0,k*4.0) * mult_random * 0.3 * 0.25;*/
+            }
+
             //res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 3.0;
 
 
 
 
-                res += get_volume_point(0,i*0.08,j*0.08,k*0.08) * mult_random;
+                //res += get_volume_point(0,i * 2,j*0.08,k * 2) * mult_random * 0.5;
                 //res += get_volume_point(1,i*0.1,j*0.1,k*0.1) * mult_random *0.5;
                 //res += get_volume_point(2,i*0.2,j*0.2,k*0.2) * mult_random *0.25;
-                //res += get_volume_point(3,i*0.4,j*0.4,k*0.4) * mult_random * 0.025;
+                //res += get_volume_point(3,i*0.4,j*0.4,k*0.4) * mult_random * 0.125;
                 /*res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 5.0;
                 res += get_volume_point(0,i*0.4,j*0.4,k*0.4) * 2.0;*/
             /*res += get_volume_point(1,i*0.4,j*0.4,k*0.4) * 1.5;
