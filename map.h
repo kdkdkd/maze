@@ -143,7 +143,7 @@ class Map
             height_y = 10.0;
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
-            blocks_per_point = 0.5;
+            blocks_per_point = 1.0;
         }
 
 
@@ -950,7 +950,7 @@ class Map
             float res = 0.0;
 
 
-            float mult = 0.1;
+            float mult = 0.08;
             /*if(j<0)
                 mult = 6.0;*/
 
@@ -960,13 +960,23 @@ class Map
                 mult_random = 0.0;*/
 
             if(j<0)
-                res = dist * mult + get_volume_point(2,i*0.8,j*0.8,k*0.8) * 0.5;
+                res = dist * mult + get_volume_point(0,i*0.15,j*0.15,k*0.15) * 0.6;
             else
             {
                 res = dist * mult - 3;
 
+                float init_xz = 0.4;
+                float init_y = 0.02;
+                float init_mult = 1.0;
 
-                res += get_volume_point(0,i*0.1,j*0.02,k*0.1) * mult_random*0.7;
+                for(int it = 1;it<8;it++)
+                {
+                    res += get_volume_point(it,i*init_xz,j*init_y,k*init_xz) * mult_random * 0.8 * init_mult;
+                    init_xz*=2;
+                    init_y*=2;
+                    init_mult*=0.5;
+                }
+
 
                 /*float warpx = get_volume_point(1, i*0.1, j*0.1, k*0.1 );
                 float warpy = get_volume_point(4, i*0.1, j*0.1, k*0.1 );
@@ -974,7 +984,7 @@ class Map
                 i += warpx * 16;
                 j += warpy * 16;
                 k += warpz * 16;*/
-                res += get_volume_point(3,i*0.5,j*0.04,k*0.5) * mult_random * 0.5;
+                //res += get_volume_point(3,i*0.5,j*0.04,k*0.5) * mult_random * 0.5;
                 /*res += get_volume_point(4,i*1.0,j*1.0,k*1.0) * mult_random * 0.3;
                 res += get_volume_point(5,i*2.0,j*2.0,k*2.0) * mult_random * 0.3 * 0.5;
                 res += get_volume_point(6,i*4.0,j*4.0,k*4.0) * mult_random * 0.3 * 0.25;*/
