@@ -45,6 +45,7 @@
 		<Unit filename="map.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="optimization.h" />
 		<Unit filename="xml\pugiconfig.hpp" />
 		<Unit filename="xml\pugixml.cpp" />
 		<Unit filename="xml\pugixml.hpp" />
