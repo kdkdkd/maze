@@ -623,7 +623,32 @@ class Map
             return -1;
         }
 
+        //GET PORTAL IN
+        Vector2 get_portal_in()
+        {
+            xpath_node_set portal_in = doc.select_nodes("/map/portalin");
 
+            for (xpath_node_set::const_iterator it = portal_in.begin(); it != portal_in.end(); ++it)
+            {
+                xpath_node portal = *it;
+                return get_point_by_id(portal.node().attribute("point").value());
+            }
+            return Vector2::ZERO;
+
+        }
+
+        //GET PORTAL OUT
+        Vector2 get_portal_out()
+        {
+            xpath_node_set portal_in = doc.select_nodes("/map/portalout");
+
+            for (xpath_node_set::const_iterator it = portal_in.begin(); it != portal_in.end(); ++it)
+            {
+                xpath_node portal = *it;
+                return get_point_by_id(portal.node().attribute("point").value());
+            }
+            return Vector2::ZERO;
+        }
 
 
 
@@ -1066,9 +1091,9 @@ class Map
             manual_geometry->end();
             MeshPtr mesh = manual_geometry->convertToMesh("Geometry");
             meshmagick::OptimiseTool optim;
-            optim.setNormTolerance(0.1);
-            optim.setPosTolerance(0.1);
-            optim.setUVTolerance(0.1);
+            optim.setNormTolerance(0.01);
+            optim.setPosTolerance(0.01);
+            optim.setUVTolerance(0.01);
 
             optim.processMesh(mesh);
 

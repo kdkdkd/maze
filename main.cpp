@@ -14,6 +14,12 @@ class MazeFrameListener : public Ogre::FrameListener
     MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win)
     {
         this->mCamera = mCamera;
+
+        mCamera->setPosition(0,550,-1550);
+        mCamera->lookAt(0,550,-1500);
+
+
+
         this->win = win;
         up = Degree(55);
         down = Degree(-55);
@@ -143,15 +149,17 @@ class Example1 : public ExampleApplication
         void createCamera()
         {
             mCamera = mSceneMgr->createCamera("MyCamera1");
-            mCamera->setPosition(0,550,-1550);
-            mCamera->lookAt(0,550,-1500);
+
             //mCamera->setPolygonMode(PM_WIREFRAME);
         }
         void createScene()
         {
 
 
-            map = new Map("../../../maps/level1.txt",mSceneMgr);
+            map = new Map("../../../maps/level01.txt",mSceneMgr);
+Vector2 in_point = map->to_real(map->get_portal_in() + 0.5);
+        cout<<in_point.x<<"  "<<in_point.y<<endl;
+
             map->build_geometry();
 
                         /*Ogre::Light* light = mSceneMgr->createLight("Light1");

@@ -1,6 +1,6 @@
 <map>
-	<portalin point="p24"/>
-	<portalout point="p45"/>
+	<portalin point="p11"></portalin>
+	<portalout point="p45"></portalout>
 	<points>
 		<point id="p11" x="1" y="1" />
 		<point id="p51" x="5" y="1" />
@@ -17,18 +17,17 @@
 		<point id="p24" x="2" y="4" />
 	</points>
         <lines>
-		<line start="p11" end="p51" />
-		<line start="p11" end="p12" />
-		<line start="p12" end="p52" />
-		<line start="p52" end="p55" />
-		<line start="p45" end="p55" />
-		<line start="p12" end="p15" />
-		<line start="p15" end="p35" />
-		<line start="p35" end="p34" />
-		<line start="p34" end="p44" />
-		<line start="p44" end="p43" />
-		<line start="p43" end="p23" />
-		<line start="p23" end="p24" />
+			<line start="p11" end="p51" />
+			<line start="p11" end="p12" />
+			<line start="p12" end="p52" />
+			<line start="p52" end="p55" />
+			<line start="p45" end="p55" />
+			<line start="p12" end="p15" />
+			<line start="p15" end="p35" />
+			<line start="p35" end="p34" />
+			<line start="p34" end="p44" />
+			<line start="p44" end="p43" />
+			<line start="p43" end="p23" />
+			<line start="p23" end="p24" />
 		</lines>
-
 </map>
