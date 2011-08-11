@@ -143,7 +143,7 @@ class Map
             height_y = 10.0;
             eps_dist = 1.0;
             max_allowed_step = eps_dist * 0.5 * scale.x;
-            blocks_per_point = 1.0;
+            blocks_per_point = 0.3;
         }
 
 
@@ -955,27 +955,28 @@ class Map
                 mult = 6.0;*/
 
 
-            float mult_random = (j + 1);
+            float mult_random = (j*0.5 + 5);
             /*if(mult_random<0.0)
                 mult_random = 0.0;*/
 
             if(j<0)
-                res = dist * mult + get_volume_point(0,i*0.15,j*0.15,k*0.15) * 0.6;
+                res =1.0;
             else
             {
                 res = dist * mult - 3;
-
-                float init_xz = 0.4;
-                float init_y = 0.02;
+                res+=get_volume_point(1,i*0.05,j*0.05,k*0.05) * mult_random * 0.3;
+                //res+=get_volume_point(2,i*0.3,j*0.05,k*0.3) * mult_random * 0.6 * 2;
+                /*float init_xz = 0.05;
+                float init_y = 0.05;
                 float init_mult = 1.0;
 
                 for(int it = 1;it<8;it++)
                 {
-                    res += get_volume_point(it,i*init_xz,j*init_y,k*init_xz) * mult_random * 0.8 * init_mult;
-                    init_xz*=2;
-                    init_y*=2;
+                    res += get_volume_point(it,i*init_xz,j*init_y,k*init_xz) * mult_random * 0.6 * init_mult;
+                    init_xz*=4;
+                    init_y*=4;
                     init_mult*=0.5;
-                }
+                }*/
 
 
                 /*float warpx = get_volume_point(1, i*0.1, j*0.1, k*0.1 );
