@@ -2,6 +2,7 @@
 #define MAP_H_INCLUDED
 
 #include "xml/pugixml.hpp"
+#include "optimization.h"
 #include <vector>
 #include "Ogre/ExampleApplication.h"
 using namespace pugi;
@@ -1063,7 +1064,16 @@ class Map
 
 
             manual_geometry->end();
-            manual_geometry->convertToMesh("Geometry");
+            MeshPtr mesh = manual_geometry->convertToMesh("Geometry");
+            meshmagick::OptimiseTool optim;
+            optim.setNormTolerance(0.1);
+            optim.setPosTolerance(0.1);
+            optim.setUVTolerance(0.1);
+
+            optim.processMesh(mesh);
+
+
+
             Entity * ent_geometry = mSceneMgr->createEntity("Geometry");
 
 
@@ -1483,6 +1493,7 @@ class Map
 };
 
 #endif // MAP_H_INCLUDED
+
 
 
 
