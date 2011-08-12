@@ -156,7 +156,7 @@ class Example1 : public ExampleApplication
         {
             mCamera = mSceneMgr->createCamera("MyCamera1");
 
-            mCamera->setPolygonMode(PM_WIREFRAME);
+            //mCamera->setPolygonMode(PM_WIREFRAME);
         }
         void createScene()
         {

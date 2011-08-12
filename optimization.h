@@ -173,15 +173,19 @@ namespace meshmagick
 	//---------------------------------------------------------------------
 	void OptimiseTool::processMeshAndSimplify(Ogre::Mesh* mesh,float factor)
 	{
+            Ogre::SubMesh * sub = mesh->getSubMesh(0);
+
+            std::cout<<std::endl<<"INFO BEFORE BEFORE"<<sub->indexData->indexCount<<" "<<sub->vertexData->vertexCount<<std::endl;
             processMesh(mesh);
 
-            Ogre::SubMesh * sub = mesh->getSubMesh(0);
+
             std::cout<<std::endl<<"INFO BEFORE"<<sub->indexData->indexCount<<" "<<sub->vertexData->vertexCount<<std::endl;
+
             ProgressiveMesh progr(sub->vertexData,sub->indexData);
             ProgressiveMesh::LODFaceList res_lod;
             progr.build(1,&res_lod,ProgressiveMesh::VRQ_PROPORTIONAL,factor);
 
-
+            delete sub->indexData;
             sub->indexData = res_lod[0];
             processMesh(mesh);
             std::cout<<std::endl<<"INFO AFTER"<<sub->indexData->indexCount<<" "<<sub->vertexData->vertexCount<<std::endl;

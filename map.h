@@ -1086,7 +1086,7 @@ class Map
             optim.setPosTolerance(0.01);
             optim.setUVTolerance(0.01);
 
-            optim.processMeshAndSimplify(mesh,0.4);
+            optim.processMeshAndSimplify(mesh,0.5);
 
 
 
