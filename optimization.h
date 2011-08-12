@@ -41,8 +41,10 @@ namespace meshmagick
 		Ogre::String getName() const;
 
 		void processMesh(Ogre::MeshPtr mesh);
+		void processMeshAndSimplify(Ogre::MeshPtr mesh,float factor);
 		void processSkeleton(Ogre::SkeletonPtr skeleton);
 		void processMesh(Ogre::Mesh* mesh);
+		void processMeshAndSimplify(Ogre::Mesh* mesh,float factor);
 		void processSkeleton(Ogre::Skeleton* skeleton);
 
 		float getPosTolerance() const { return mPosTolerance; }
@@ -162,6 +164,27 @@ namespace meshmagick
 	void OptimiseTool::processMesh(Ogre::MeshPtr mesh)
 	{
 		processMesh(mesh.get());
+	}
+	//------------------------------------------------------------------------
+	void OptimiseTool::processMeshAndSimplify(Ogre::MeshPtr mesh,float factor)
+	{
+		processMeshAndSimplify(mesh.get(),factor);
+	}
+	//---------------------------------------------------------------------
+	void OptimiseTool::processMeshAndSimplify(Ogre::Mesh* mesh,float factor)
+	{
+            processMesh(mesh);
+
+            Ogre::SubMesh * sub = mesh->getSubMesh(0);
+            std::cout<<std::endl<<"INFO BEFORE"<<sub->indexData->indexCount<<" "<<sub->vertexData->vertexCount<<std::endl;
+            ProgressiveMesh progr(sub->vertexData,sub->indexData);
+            ProgressiveMesh::LODFaceList res_lod;
+            progr.build(1,&res_lod,ProgressiveMesh::VRQ_PROPORTIONAL,factor);
+
+
+            sub->indexData = res_lod[0];
+            processMesh(mesh);
+            std::cout<<std::endl<<"INFO AFTER"<<sub->indexData->indexCount<<" "<<sub->vertexData->vertexCount<<std::endl;
 	}
 	//---------------------------------------------------------------------
 	void OptimiseTool::processMesh(Ogre::Mesh* mesh)

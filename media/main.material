@@ -29,7 +29,7 @@ material Main/Cave
 			cull_hardware none
             cull_software none 
 
-			vertex_program_ref Vert
+			/*vertex_program_ref Vert
             { 
             }
 			fragment_program_ref Frag
@@ -38,7 +38,7 @@ material Main/Cave
 			texture_unit
 			{
 				texture RustedMetal.jpg
-			}
+			}*/
 		}
 	}
 }
