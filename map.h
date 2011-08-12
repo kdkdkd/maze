@@ -128,6 +128,8 @@ class Map
         Vector3 scale;
         double eps_dist;
         double max_allowed_step;
+        Vector2 portal_in;
+        Vector2 portal_out;
 
 
         Map(const char * filename,SceneManager * mSceneMgr)
@@ -138,6 +140,10 @@ class Map
             volume_z = 16;
             octaves = 9;
             doc.load_file(filename);
+            portal_in = to_real(get_portal_in());
+            portal_in.y+=5;
+            portal_out = to_real(get_portal_out());
+            portal_out.y+=5;
             this->mSceneMgr = mSceneMgr;
             get_dimensions();
             text_y = 2.0;
@@ -626,28 +632,13 @@ class Map
         //GET PORTAL IN
         Vector2 get_portal_in()
         {
-            xpath_node_set portal_in = doc.select_nodes("/map/portalin");
-
-            for (xpath_node_set::const_iterator it = portal_in.begin(); it != portal_in.end(); ++it)
-            {
-                xpath_node portal = *it;
-                return get_point_by_id(portal.node().attribute("point").value());
-            }
-            return Vector2::ZERO;
-
+            return get_point_by_id(doc.child("map").child("portalin").attribute("point").value());
         }
 
         //GET PORTAL OUT
         Vector2 get_portal_out()
         {
-            xpath_node_set portal_in = doc.select_nodes("/map/portalout");
-
-            for (xpath_node_set::const_iterator it = portal_in.begin(); it != portal_in.end(); ++it)
-            {
-                xpath_node portal = *it;
-                return get_point_by_id(portal.node().attribute("point").value());
-            }
-            return Vector2::ZERO;
+            return get_point_by_id(doc.child("map").child("portalout").attribute("point").value());
         }
 
 
@@ -1105,7 +1096,18 @@ class Map
             StaticGeometry* all_geometry = mSceneMgr->createStaticGeometry("AllStatic");
 
 
+
             all_geometry->addEntity(ent_geometry,Ogre::Vector3(0,0,0),Quaternion::IDENTITY,scale);
+
+            Entity* end = mSceneMgr->createEntity("end","sphere.mesh");
+            end->setMaterialName("Main/End");
+
+            Vector3 in_end = Vector3(portal_out.x, 0, portal_out.y);
+            in_end = to_global_space(in_end);
+            in_end.y = 750;
+
+
+            all_geometry->addEntity(end,in_end,Quaternion::IDENTITY,Vector3::UNIT_SCALE*3);
 
             all_geometry->build();
 

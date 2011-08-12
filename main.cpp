@@ -11,12 +11,19 @@ class MazeFrameListener : public Ogre::FrameListener
     Vector3 mTranslateVector;
     Radian mRotX, mRotY, up, down;
 
-    MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win)
+    MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map)
     {
         this->mCamera = mCamera;
+        this->map = map;
 
-        mCamera->setPosition(0,550,-1550);
-        mCamera->lookAt(0,550,-1500);
+        Vector3 in = Vector3(map->portal_in.x, 0, map->portal_in.y);
+        in = map->to_global_space(in);
+        in.y = 550;
+        Vector3 in_dir = in;
+        in_dir.z -= 10;
+
+        mCamera->setPosition(in_dir);
+        mCamera->lookAt(in);
 
 
 
@@ -142,8 +149,7 @@ class Example1 : public ExampleApplication
         }
         void createFrameListener()
         {
-            frame_listener = new MazeFrameListener(mCamera,mWindow);
-            frame_listener->map = map;
+            frame_listener = new MazeFrameListener(mCamera,mWindow,map);
             mRoot->addFrameListener(frame_listener);
         }
         void createCamera()
@@ -157,10 +163,10 @@ class Example1 : public ExampleApplication
 
 
             map = new Map("../../../maps/level01.txt",mSceneMgr);
-Vector2 in_point = map->to_real(map->get_portal_in() + 0.5);
-        cout<<in_point.x<<"  "<<in_point.y<<endl;
 
             map->build_geometry();
+
+
 
                         /*Ogre::Light* light = mSceneMgr->createLight("Light1");
             light->setType(Ogre::Light::LT_POINT);
@@ -185,3 +191,4 @@ int main()
 
     return 0;
 }
+
