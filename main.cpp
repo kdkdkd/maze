@@ -3,6 +3,25 @@
 #include "OIS/OIS.h"
 
 
+class MazeFrameListener;
+class Example1;
+
+
+class Example1 : public ExampleApplication
+{
+    public:
+        Map *map;
+        MazeFrameListener* frame_listener;
+        Light* light;
+        SceneNode* nodeLight;
+
+        Example1();
+        ~Example1();
+        void createFrameListener();
+        void createCamera();
+        void setLightPosition(Vector3 pos);
+        void createScene();
+};
 
 class MazeFrameListener : public Ogre::FrameListener
 {
@@ -10,11 +29,26 @@ class MazeFrameListener : public Ogre::FrameListener
 
     Vector3 mTranslateVector;
     Radian mRotX, mRotY, up, down;
+    Example1* main;
 
-    MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map)
+    MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main);
+    bool frameRenderingQueued(const FrameEvent& evt);
+
+    Ogre::RenderWindow *win;
+    Ogre::Camera *mCamera;
+	OIS::InputManager* mInputManager;
+	OIS::Mouse*    mMouse;
+	OIS::Keyboard* mKeyboard;
+	Map* map;
+};
+
+
+
+    MazeFrameListener::MazeFrameListener(Ogre::Camera *mCamera,Ogre::RenderWindow *win, Map* map,Example1* main)
     {
         this->mCamera = mCamera;
         this->map = map;
+        this->main = main;
 
         Vector3 in = Vector3(map->portal_in.x, 0, map->portal_in.y);
         in = map->to_global_space(in);
@@ -47,7 +81,7 @@ class MazeFrameListener : public Ogre::FrameListener
     }
 
 
-    bool frameRenderingQueued(const FrameEvent& evt)
+    bool MazeFrameListener::frameRenderingQueued(const FrameEvent& evt)
 	{
 	    mKeyboard->capture();
 	    mMouse->capture();
@@ -111,30 +145,20 @@ class MazeFrameListener : public Ogre::FrameListener
             }
         }
 
+        main->setLightPosition(mCamera->getPosition() + Vector3(0,1000,0));
 		mCamera->pitch(mRotY);
 		return true;
 	}
 
-    Ogre::RenderWindow *win;
-    Ogre::Camera *mCamera;
-	OIS::InputManager* mInputManager;
-	OIS::Mouse*    mMouse;
-	OIS::Keyboard* mKeyboard;
-	Map* map;
-};
 
-class Example1 : public ExampleApplication
-{
-    public:
-        Map *map;
-        MazeFrameListener* frame_listener;
 
-        Example1()
+        Example1::Example1()
         {
             frame_listener = 0;
             map = 0;
+
         }
-        ~Example1()
+        Example1::~Example1()
         {
             if(frame_listener)
             {
@@ -147,18 +171,25 @@ class Example1 : public ExampleApplication
                 map = 0;
             }
         }
-        void createFrameListener()
+        void Example1::createFrameListener()
         {
-            frame_listener = new MazeFrameListener(mCamera,mWindow,map);
+            frame_listener = new MazeFrameListener(mCamera,mWindow,map,this);
             mRoot->addFrameListener(frame_listener);
         }
-        void createCamera()
+        void Example1::createCamera()
         {
             mCamera = mSceneMgr->createCamera("MyCamera1");
 
             //mCamera->setPolygonMode(PM_WIREFRAME);
         }
-        void createScene()
+
+        void Example1::setLightPosition(Vector3 pos)
+        {
+            light->setPosition(pos);
+            nodeLight->setPosition(pos);
+        }
+
+        void Example1::createScene()
         {
 
 
@@ -168,21 +199,18 @@ class Example1 : public ExampleApplication
 
 
 
-                        /*Ogre::Light* light = mSceneMgr->createLight("Light1");
+            light = mSceneMgr->createLight("Light1");
             light->setType(Ogre::Light::LT_POINT);
             light->setDiffuseColour(Ogre::ColourValue(1.0f,1.0f,1.0f));
-            light->setPosition(Ogre::Vector3(5,3,10)*map->scale);*/
 
-           /* Ogre::SceneNode* node = mSceneMgr->createSceneNode("Node1");
-            mSceneMgr->getRootSceneNode()->addChild(node);
+            nodeLight = mSceneMgr->createSceneNode("LightNode1");
+            mSceneMgr->getRootSceneNode()->addChild(nodeLight);
 
-            Ogre::Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
-            Ogre::SceneNode* node3 = node->createChildSceneNode("node3");
-            node3->setScale(0.1f,0.1f,0.1f);
-            node3->setPosition(Ogre::Vector3(5,10,10)*map->scale);
-            node3->attachObject(LightEnt);*/
+
+            Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
+            LightEnt->setMaterialName("Main/Light");
+            nodeLight->attachObject(LightEnt);
         }
-};
 
 int main()
 {

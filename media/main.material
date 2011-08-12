@@ -29,7 +29,9 @@ material Main/Cave
 			cull_hardware none
             cull_software none 
 
-			vertex_program_ref Vert
+			ambient 0.3 0.3 0.3
+			
+			/*vertex_program_ref Vert
             { 
             }
 			fragment_program_ref Frag
@@ -38,7 +40,7 @@ material Main/Cave
 			texture_unit
 			{
 				texture RustedMetal.jpg
-			}
+			}*/
 		}
 	}
 }
@@ -55,6 +57,25 @@ material Main/End
 			texture_unit
 			{
 				colour_op_ex source1 src_manual src_current 1 0 0
+				alpha_op_ex source1 src_manual src_current 0.3
+			}
+		}
+	}
+}
+
+
+material Main/Light
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			depth_write off
+			
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 1 0 1
 				alpha_op_ex source1 src_manual src_current 0.3
 			}
 		}
