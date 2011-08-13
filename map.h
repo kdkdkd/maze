@@ -681,14 +681,14 @@ class Map
             /*if(point.y<0.01)
                 return Vector3::UNIT_Y;*/
             //cout<<"get_normal"<<point.x<<" "<<point.y<<" "<<point.z<<" "<<endl;
-            float d = 0.01;
+            float d = 3;
             Vector3 grad = Vector3(0,0,0);
-            while(fabs(grad.x)<0.001 && fabs(grad.y)<0.001 && fabs(grad.z)<0.001)
+            //while(fabs(grad.x)<0.001 && fabs(grad.y)<0.001 && fabs(grad.z)<0.001)
             {
                 grad.x = get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z);
                 grad.y = get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z);
                 grad.z = get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d);
-                d *= 2;
+                //d *= 2;
             }
             //cout<<get_density(point.x + d,point.y,point.z) - get_density(point.x - d,point.y,point.z)<<"  "<<get_density(point.x,point.y+d,point.z) - get_density(point.x,point.y-d,point.z)<<"   "<<get_density(point.x,point.y,point.z+d) - get_density(point.x,point.y,point.z-d)<<"Normal"<<endl;
             grad.normalise();
