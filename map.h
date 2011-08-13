@@ -681,7 +681,7 @@ class Map
             /*if(point.y<0.01)
                 return Vector3::UNIT_Y;*/
             //cout<<"get_normal"<<point.x<<" "<<point.y<<" "<<point.z<<" "<<endl;
-            float d = 0.05;
+            float d = 0.01;
             Vector3 grad = Vector3(0,0,0);
             while(fabs(grad.x)<0.001 && fabs(grad.y)<0.001 && fabs(grad.z)<0.001)
             {
@@ -972,13 +972,15 @@ class Map
                 mult = 6.0;*/
 
 
-            float mult_random = (j*0.5 + 5);
+            float mult_random = fabs(j*0.5 + 5);
             /*if(mult_random<0.0)
                 mult_random = 0.0;*/
-
-            if(j<0)
-                res =1.0;
-            else
+            /*if(j<0)
+            {
+                //res = dist * mult + get_volume_point(0,i*0.15,j*0.15,k*0.15) * 0.6;
+                res = 1;
+            }
+            else*/
             {
                 res = dist * mult - 3;
                 res+=get_volume_point(1,i*0.05,j*0.05,k*0.05) * mult_random * 0.3;
@@ -1059,7 +1061,7 @@ class Map
             float blocks_per_point_reverse = 1.0 / blocks_per_point;
 
             for(int i_int = -20.0 * blocks_per_point;i_int<mx + 20.0 * blocks_per_point;++i_int)
-                for(int j_int = -4.0 * blocks_per_point;j_int<my + 20.0 * blocks_per_point;++j_int)
+                for(int j_int = -10.0 * blocks_per_point;j_int<my + 20.0 * blocks_per_point;++j_int)
                     for(int k_int = 20 * blocks_per_point;k_int>mz - 20.0 * blocks_per_point;--k_int)
                         {
 

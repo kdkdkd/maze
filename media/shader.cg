@@ -4,15 +4,22 @@ void Vert(
 							float3 normal   : NORMAL,
   
 							uniform float4x4 worldviewproj, 
+							uniform float4 lightPosition,
+							uniform float3 eyePosition,
  
 							out float4 oClipPos    : POSITION,
 							out float4 oPos     : TEXCOORD0,
-							out float3 oNorm     : TEXCOORD1
+							out float3 oNorm     : TEXCOORD1,
+                            out float4 oLightPos    : TEXCOORD2,            
+                            out float3 oEyePos    : TEXCOORD3
+                  
 						 ) 
 {
 	oClipPos = mul(worldviewproj, position);
     oPos = position;
 	oNorm = normal;
+	oLightPos = lightPosition;
+    oEyePos = eyePosition;
 	
  
 }
@@ -22,13 +29,43 @@ void Frag(
  
              float4 pos         : TEXCOORD0,
 			 float3 norm         : TEXCOORD1,
+			 float4 lightpos        : TEXCOORD2,
+             float3 eyepos        : TEXCOORD3,
+
+			 uniform float4 lightDiffuse,
+             uniform float4 lightSpecular,
+             uniform float exponent,
+             uniform float4 ambient,
 			 uniform sampler2D texture  : TEXUNIT0,
-             out float3 oColor : COLOR 
+
+             out float4 oColor : COLOR 
 )
  
 {
-
-	float3 blend_weights = abs( normalize(norm) );
+	float3 N = normalize(norm);
+	
+	
+	float3 EyeDir = normalize(eyepos - pos.xyz);
+    float3 LightDir = normalize(lightpos.xyz - (pos * lightpos.w));
+    float3 HalfAngle = normalize(LightDir + EyeDir);
+ 
+    float NdotL = dot(LightDir, N);
+    float NdotH = dot(HalfAngle, N);
+    float4 Lit = lit(NdotL,NdotH,exponent);
+ 
+    //float3 textColour = expand(tex2D(texture, uv).xyz);
+ 
+    
+	
+	
+	oColor = 2000.0 * (lightDiffuse * Lit.y + lightSpecular * Lit.z + ambient /*+ float4(textColour, 1)*/)/ distance(pos,lightpos) ;
+	
+	
+	
+	
+	
+	
+	/*float3 blend_weights = abs( N );
 	blend_weights = (blend_weights - 0.2) * 7;  
 	blend_weights = max(blend_weights, 0);
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z ).xxx; 
@@ -37,6 +74,6 @@ void Frag(
 	float4 col2 = tex2D(texture,pos.xz * 0.001);  
 	float4 col3 = tex2D(texture,pos.yz * 0.001);  
 	
-    oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
-	//oColor =  abs( normalize(norm) );
+    oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;*/
+	
 }

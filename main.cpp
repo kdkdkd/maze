@@ -52,7 +52,7 @@ class MazeFrameListener : public Ogre::FrameListener
 
         Vector3 in = Vector3(map->portal_in.x, 0, map->portal_in.y);
         in = map->to_global_space(in);
-        in.y = 550;
+        in.y = 150;
         Vector3 in_dir = in;
         in_dir.z -= 10;
 
@@ -201,7 +201,7 @@ class MazeFrameListener : public Ogre::FrameListener
 
             light = mSceneMgr->createLight("Light1");
             light->setType(Ogre::Light::LT_POINT);
-            light->setDiffuseColour(Ogre::ColourValue(1.0f,1.0f,1.0f));
+            light->setDiffuseColour(Ogre::ColourValue(0.6f,0.6f,0.3f));
 
             nodeLight = mSceneMgr->createSceneNode("LightNode1");
             mSceneMgr->getRootSceneNode()->addChild(nodeLight);
