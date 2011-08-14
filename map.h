@@ -681,7 +681,7 @@ class Map
             /*if(point.y<0.01)
                 return Vector3::UNIT_Y;*/
             //cout<<"get_normal"<<point.x<<" "<<point.y<<" "<<point.z<<" "<<endl;
-            float d = 3;
+            float d = 2;
             Vector3 grad = Vector3(0,0,0);
             //while(fabs(grad.x)<0.001 && fabs(grad.y)<0.001 && fabs(grad.z)<0.001)
             {

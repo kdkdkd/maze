@@ -52,8 +52,10 @@ material Main/Cave
             } 
 			texture_unit
 			{
-				texture RustedMetal.jpg
+				texture noise2.jpg
 			}
+			
+			
 		}
 	}
 }

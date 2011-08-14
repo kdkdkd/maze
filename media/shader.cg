@@ -37,6 +37,7 @@ void Frag(
              uniform float exponent,
              uniform float4 ambient,
 			 uniform sampler2D texture  : TEXUNIT0,
+			 
 
              out float4 oColor : COLOR 
 )
@@ -53,27 +54,23 @@ void Frag(
     float NdotH = dot(HalfAngle, N);
     float4 Lit = lit(NdotL,NdotH,exponent);
  
-    //float3 textColour = expand(tex2D(texture, uv).xyz);
+    //float3 textColour = tex2D(texture, pos.xy);
  
-    
-	
-	
-	oColor = 2000.0 * (lightDiffuse * Lit.y + lightSpecular * Lit.z + ambient /*+ float4(textColour, 1)*/)/ distance(pos,lightpos) ;
-	
-	
-	
-	
-	
-	
-	/*float3 blend_weights = abs( N );
-	blend_weights = (blend_weights - 0.2) * 7;  
+    float3 blend_weights = abs( N );
+	blend_weights = (blend_weights - 0.5) * 7;  
 	blend_weights = max(blend_weights, 0);
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z ).xxx; 
 	
-	float4 col1 = tex2D(texture,pos.xy * 0.001);  
-	float4 col2 = tex2D(texture,pos.xz * 0.001);  
-	float4 col3 = tex2D(texture,pos.yz * 0.001);  
+	float4 col1 = tex2D(texture,pos.xy * 0.000005) + tex2D(texture,pos.xy * 0.00001)*0.5 + tex2D(texture,pos.xy * 0.00002)*0.25;  
+	float4 col2 = tex2D(texture,pos.xz * 0.000005)+ tex2D(texture,pos.xz * 0.00001)*0.5 + tex2D(texture,pos.xz * 0.00002)*0.25;  
+	float4 col3 = tex2D(texture,pos.yz * 0.000005)+ tex2D(texture,pos.yz * 0.00001)*0.5 + tex2D(texture,pos.yz * 0.00002)*0.25;  
 	
-    oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;*/
+    oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
+	
+	oColor = 2000.0 * (lightDiffuse * Lit.y + lightSpecular * Lit.z + ambient*oColor )/ distance(pos,lightpos) ;
+	
+	
+	
+	
 	
 }
