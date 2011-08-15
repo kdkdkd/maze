@@ -52,7 +52,11 @@ material Main/Cave
             } 
 			texture_unit
 			{
-				texture noise2.jpg
+				texture rust.png
+			}
+			texture_unit
+			{
+				texture noise.png
 			}
 			
 			

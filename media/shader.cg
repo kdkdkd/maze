@@ -37,6 +37,7 @@ void Frag(
              uniform float exponent,
              uniform float4 ambient,
 			 uniform sampler2D texture  : TEXUNIT0,
+			 uniform sampler2D texture2  : TEXUNIT1,
 			 
 
              out float4 oColor : COLOR 
@@ -61,13 +62,25 @@ void Frag(
 	blend_weights = max(blend_weights, 0);
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z ).xxx; 
 	
-	float4 col1 = tex2D(texture,pos.xy * 0.000005) + tex2D(texture,pos.xy * 0.00001)*0.5 + tex2D(texture,pos.xy * 0.00002)*0.25;  
-	float4 col2 = tex2D(texture,pos.xz * 0.000005)+ tex2D(texture,pos.xz * 0.00001)*0.5 + tex2D(texture,pos.xz * 0.00002)*0.25;  
-	float4 col3 = tex2D(texture,pos.yz * 0.000005)+ tex2D(texture,pos.yz * 0.00001)*0.5 + tex2D(texture,pos.yz * 0.00002)*0.25;  
+	float4 col_noise1 = tex2D(texture2,pos.xy * 0.005);  
+	float4 col_noise2 = tex2D(texture2,pos.xz * 0.005);  
+	float4 col_noise3 = tex2D(texture2,pos.yz * 0.005);  
 	
+	float4 col1 = tex2D(texture,pos.xy * 0.0006);  
+	float4 col2 = tex2D(texture,pos.xz * 0.0006);  
+	float4 col3 = tex2D(texture,pos.yz * 0.0006);  
+	
+	
+	float4 col_scaled1 = tex2D(texture,pos.xy * 0.0005);  
+	float4 col_scaled2 = tex2D(texture,pos.xz * 0.0005);  
+	float4 col_scaled3 = tex2D(texture,pos.yz * 0.0005);  
+	
+	float4 col_scaled =  (col_scaled3.xyzw * blend_weights.xxxx + col_scaled2.xyzw * blend_weights.yyyy + col_scaled1.xyzw * blend_weights.zzzz).xxxx;
     oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
+	float4 col_noise = col_noise3.xyzw * blend_weights.xxxx + col_noise2.xyzw * blend_weights.yyyy + col_noise1.xyzw * blend_weights.zzzz;
 	
-	oColor = 2000.0 * (lightDiffuse * Lit.y + lightSpecular * Lit.z + ambient*oColor )/ distance(pos,lightpos) ;
+	oColor = ( oColor * col_noise ) + ( col_scaled * ( 1 - col_noise ) );
+	oColor *= 3000.0 * (lightDiffuse * Lit.y + lightSpecular * Lit.z + ambient * oColor  )/ distance(pos,lightpos) ;
 	
 	
 	
