@@ -696,6 +696,27 @@ class Map
             //return Vector3(0,1,0);
         }
 
+        void set_tangent_space(ManualObject*  manual, Vector3 point)
+        {
+            float blocks_per_point_reverse = 1.0 / blocks_per_point;
+            Vector3 normal = get_normal(point*blocks_per_point_reverse);
+            manual->normal(normal);
+            /*if(fabs(normal.x)>fabs(normal.y) && fabs(normal.x)>fabs(normal.z))
+            {
+                manual->tangent(0,1,0);
+                manual->textureCoord(0,0,1);
+            }else if(fabs(normal.y)>fabs(normal.z) && fabs(normal.y)>fabs(normal.x))
+            {
+                manual->tangent(1,0,0);
+                manual->textureCoord(0,0,1);
+
+            }else
+            {
+                manual->tangent(1,0,0);
+                manual->textureCoord(0,1,0);
+            }*/
+        }
+
         //GET CUBE OF RANDOM GENERATED GEOMETRY
         void draw_node(ManualObject*  manual,Vector3 start,Vector3 dim, int & index,float density[8])
         {
@@ -716,7 +737,7 @@ class Map
 
             int triangles = num_of_edge[edge_index];
             //cout<<triangles<<endl;
-            float blocks_per_point_reverse = 1.0 / blocks_per_point;
+
             for(int triangle = 0;triangle<triangles;triangle++)
             {
                 int edge_1 = edge[edge_index][triangle*3];
@@ -728,13 +749,13 @@ class Map
                 Vector3 point3 = (get_point(edge_3,density) + start);
 
                 manual->position(point1 * dim);
-                manual->normal(get_normal(point1*blocks_per_point_reverse));
+                set_tangent_space(manual,point1);
 
                 manual->position(point2 * dim);
-                manual->normal(get_normal(point2*blocks_per_point_reverse));
+                set_tangent_space(manual,point2);
 
                 manual->position(point3 * dim);
-                manual->normal(get_normal(point3*blocks_per_point_reverse));
+                set_tangent_space(manual,point3);
 
 
                 manual->index(index);

@@ -13,7 +13,7 @@ class Example1 : public ExampleApplication
         Map *map;
         MazeFrameListener* frame_listener;
         Light* light;
-        SceneNode* nodeLight;
+        //SceneNode* nodeLight;
 
         Example1();
         ~Example1();
@@ -186,7 +186,7 @@ class MazeFrameListener : public Ogre::FrameListener
         void Example1::setLightPosition(Vector3 pos)
         {
             light->setPosition(pos);
-            nodeLight->setPosition(pos);
+            //nodeLight->setPosition(pos);
         }
 
         void Example1::createScene()
@@ -202,14 +202,15 @@ class MazeFrameListener : public Ogre::FrameListener
             light = mSceneMgr->createLight("Light1");
             light->setType(Ogre::Light::LT_POINT);
             light->setDiffuseColour(Ogre::ColourValue(0.6f,0.6f,0.3f));
+            //light->setSpecularColour(Ogre::ColourValue(1.0f,1.0f,1.0f));
 
-            nodeLight = mSceneMgr->createSceneNode("LightNode1");
+            /*nodeLight = mSceneMgr->createSceneNode("LightNode1");
             mSceneMgr->getRootSceneNode()->addChild(nodeLight);
 
 
             Entity* LightEnt = mSceneMgr->createEntity("MyEntity","sphere.mesh");
             LightEnt->setMaterialName("Main/Light");
-            nodeLight->attachObject(LightEnt);
+            nodeLight->attachObject(LightEnt);*/
         }
 
 int main()
