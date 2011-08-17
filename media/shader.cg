@@ -54,37 +54,21 @@ void Frag(
 	blend_weights = max(blend_weights, 0);
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z ).xxx; 
 	
+	float4 pos_div = pos * 0.0005;
 	
-	float4 col1 = tex2D(texture,pos.xy * 0.0005);  
-	float4 col2 = tex2D(texture,pos.xz * 0.0005);  
-	float4 col3 = tex2D(texture,pos.yz * 0.0005);
+	float4 col1 = tex2D(texture,pos_div.yx);  
+	float4 col2 = tex2D(texture,pos_div.xz);  
+	float4 col3 = tex2D(texture,pos_div.yz);
 	oColor =  (col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz).xxxx;
-    
-	/*col1 = tex2D(texture2,pos.xy * 0.005);  
-	col2 = tex2D(texture2,pos.xz * 0.005);  
-	col3 = tex2D(texture2,pos.yz * 0.005);  
-	float4 col_noise = col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
-	
-	col1 = tex2D(texture,pos.xy * 0.0006);  
-	col2 = tex2D(texture,pos.xz * 0.0006);  
-	col3 = tex2D(texture,pos.yz * 0.0006);  
-	oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;*/
-	
-	//if(pos.y<-300)
-	/*{
-		col1 = 2.0*tex2D(texture3,pos.xy * 0.003)-1.0;  
-		col2 = 2.0*tex2D(texture3,pos.xz * 0.003)-1.0;  
-		col3 = 2.0*tex2D(texture3,pos.yz * 0.003)-1.0;
-		float4 col_normal =  (col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz).xxxx;
-		N = normalize(N-col_normal);  
-	}*/
 	
 	
-    float3 LightDir = normalize(lightpos.xyz - (pos * lightpos.w));
+    float3 LightDir = normalize(lightpos.xyz - pos.xyz);
     
     float NdotL = dot(LightDir, N);
     
 	
-	oColor *=  3000.0 * (lightDiffuse * NdotL + ambient * oColor )/ distance(pos,lightpos) ;
+	oColor *=  (lightDiffuse * NdotL + ambient * oColor );
+	oColor /=  distance(pos,lightpos) ;
+	oColor *= 3000.0;
 	
 }

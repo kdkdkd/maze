@@ -17,7 +17,7 @@ particle_system Particles/Dust
 		angle 90
 		emission_rate 100
 		time_to_live 4
-		velocity 100
+		velocity 200
 		colour0 0.8 0.8 0.5 0
 	}
 	
