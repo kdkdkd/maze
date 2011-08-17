@@ -14,9 +14,6 @@ material Main/Dust
 				texture dust.png
 				tex_address_mode clamp
 			}
-			
-			
-			
 		}
 	}
 }

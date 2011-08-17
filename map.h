@@ -11,9 +11,10 @@ using namespace Ogre;
 
 struct PortalPair
 {
-    public Vector3 color;
-    public Vector3 portal1;
-    public Vector3 portal2;
+    public:
+    Vector3 color;
+    Vector3 portal1;
+    Vector3 portal2;
 };
 
 struct NodeDirectons
@@ -131,7 +132,7 @@ class Map
         int volume_y;
         int volume_z;
 
-        std::vector<Portal> portals;
+        std::vector<PortalPair> portals;
 
     public:
         double center_y;
@@ -1157,7 +1158,7 @@ class Map
 
             for (xpath_node_set::const_iterator it = portals.begin(); it != portals.end(); ++it)
             {
-                Portal insert_portal;
+                PortalPair insert_portal;
                 xpath_node portalpair = *it;
                 if(strcmp(portalpair.node().attribute("color").value(),"red")==0)
                 {
@@ -1169,10 +1170,10 @@ class Map
                 {
                     insert_portal.color = Vector3(0,0,1);
                 }
-                portalpair
 
 
-                portals.push_back(insert_portal);
+
+                this->portals.push_back(insert_portal);
             }
 
         }

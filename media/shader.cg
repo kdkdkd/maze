@@ -58,9 +58,9 @@ void Frag(
 	float4 col1 = tex2D(texture,pos.xy * 0.0005);  
 	float4 col2 = tex2D(texture,pos.xz * 0.0005);  
 	float4 col3 = tex2D(texture,pos.yz * 0.0005);
-	float4 col_scaled =  (col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz).xxxx;
+	oColor =  (col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz).xxxx;
     
-	col1 = tex2D(texture2,pos.xy * 0.005);  
+	/*col1 = tex2D(texture2,pos.xy * 0.005);  
 	col2 = tex2D(texture2,pos.xz * 0.005);  
 	col3 = tex2D(texture2,pos.yz * 0.005);  
 	float4 col_noise = col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
@@ -68,9 +68,7 @@ void Frag(
 	col1 = tex2D(texture,pos.xy * 0.0006);  
 	col2 = tex2D(texture,pos.xz * 0.0006);  
 	col3 = tex2D(texture,pos.yz * 0.0006);  
-	oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;
-	
-	oColor = lerp( oColor , col_scaled, col_noise );
+	oColor =  col3.xyzw * blend_weights.xxxx + col2.xyzw * blend_weights.yyyy + col1.xyzw * blend_weights.zzzz;*/
 	
 	//if(pos.y<-300)
 	/*{
