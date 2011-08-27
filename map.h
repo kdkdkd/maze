@@ -218,6 +218,7 @@ class Map
 
 
         void merge_block_horizontal(Block b);
+
         //BUILD REGULAR GEOMETRY
         void build_geometry();
 
@@ -226,6 +227,10 @@ class Map
 
         //SET TIME FOR RENDERING
         void set_time(double time);
+
+
+        //ADD DECAL
+        void add_decal_triangle(Vector3 a,Vector3 b,Vector3 c);
 
 
 };

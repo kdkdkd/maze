@@ -1,0 +1,20 @@
+material Main/Decal
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			depth_write off
+			cull_hardware none
+            cull_software none
+			depth_bias 10
+			
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 1 0 0
+				alpha_op_ex source1 src_manual src_current 0.3
+			}
+		}
+	}
+}

@@ -953,120 +953,17 @@ float Map::get_volume_point(int volume_index,float i,float j, float k)
 //GET DENSITY IN SOME POINT
 float Map::get_density(float i,float j,float k)
 {
-
-    /*float fi=i/20.0;
-    float fj=j/20.0;
-    float fk=k/20.0;
-
-    fi += get_volume_point(0,fi*0.004,fj*0.004,fk*0.004)*2;
-    fj += get_volume_point(1,fi*0.004,fj*0.004,fk*0.004)*2;
-    fk += get_volume_point(2,fi*0.004,fj*0.004,fk*0.004)*2;
-
-    float res = (- j + (float)volume_y/2.0)/20.0;
-    res += get_volume_point(0,fi,fj,fk);/
-    //res += get_volume_point(1,2*fi,2*fj,2*fk) * 0.5;
-    //res += get_volume_point(2,4*fi,4*fj,4*fk)*0.5;
-    //res += get_volume_point(1,8*fi,8*fj,8*fk)*0.25;
-    //res += get_volume_point(1,2*fi,2*fj,2*fk) * 0.5;
-    //res += get_volume_point(2,4*fi,4*fj,4*fk) * 0.25;
-    //res += get_volume_point(3,8*fi,8*fj,8*fk)*0.125;
-    //res += get_volume_point(4,16*fi,16*fj,16*fk)*0.0625;
-    //res += get_volume_point(5,32*fi,32*fj,32*fk)*0.03125;
-    //res += get_volume_point(6,64*fi,64*fj,64*fk)*0.03125*0.5;
-    //res += get_volume_point(7,128*fi,128*fj,128*fk)*0.03125*0.25;
-    //res += get_volume_point(8,256*fi,256*fj,256*fk)*0.03125*0.125;
-    //res += get_volume_point(4,8*fi,8*fj,8*fk)*0.125;
-
-    //res += get_volume_point(1,2*fi,2*fj,2*fk) * 0.5;
-    //res += get_volume_point(2,4*fi,4*fj,4*fk) * 0.25;
-    //res += get_volume_point(3,8*fi,8*fj,8*fk)*0.125;
-    //res += get_volume_point(4,16*fi,16*fj,16*fk)*0.0625;
-    //res += get_volume_point(5,32*fi,32*fj,32*fk)*0.03125;
-    //res += get_volume_point(6,64*fi,64*fj,64*fk)*0.03125*0.5;
-    //res += get_volume_point(7,128*fi,128*fj,128*fk)*0.03125*0.25;
-    //res += get_volume_point(8,256*fi,256*fj,256*fk)*0.03125*0.125;*/
-    //res += volume[(2*i)%volume_x][(2*j)%volume_y][(2*k)%volume_z] * 0.5;
-    //res += volume[(4*i)%volume_x][(4*j)%volume_y][(4*k)%volume_z] * 0.25;
-
     float dist = get_squared_distance_to_void(i,j,k);
-    /*float m = 6.0;
-    float m_reserve = 1.0 / m;
-    if(res>m)
-        return m;*/
-
-    /*if(j>10)
-       return 1.0;*/
-
-
-
     float res = 0.0;
-
-
     float mult = 0.08;
-    /*if(j<0)
-        mult = 6.0;*/
-
-
     float mult_random = fabs(j*0.5 + 5);
-    /*if(mult_random<0.0)
-        mult_random = 0.0;*/
-    /*if(j<0)
-    {
-        //res = dist * mult + get_volume_point(0,i*0.15,j*0.15,k*0.15) * 0.6;
-        res = 1;
-    }
-    else*/
-    {
-        res = dist * mult - 3;
-        res+=get_volume_point(1,i*0.05,j*0.05,k*0.05) * mult_random * 0.3;
-        //res+=get_volume_point(2,i*0.3,j*0.05,k*0.3) * mult_random * 0.6 * 2;
-        /*float init_xz = 0.05;
-        float init_y = 0.05;
-        float init_mult = 1.0;
-
-        for(int it = 1;it<8;it++)
-        {
-            res += get_volume_point(it,i*init_xz,j*init_y,k*init_xz) * mult_random * 0.6 * init_mult;
-            init_xz*=4;
-            init_y*=4;
-            init_mult*=0.5;
-        }*/
-
-
-        /*float warpx = get_volume_point(1, i*0.1, j*0.1, k*0.1 );
-        float warpy = get_volume_point(4, i*0.1, j*0.1, k*0.1 );
-        float warpz = get_volume_point(5, i*0.1, j*0.1, k*0.1 );
-        i += warpx * 16;
-        j += warpy * 16;
-        k += warpz * 16;*/
-        //res += get_volume_point(3,i*0.5,j*0.04,k*0.5) * mult_random * 0.5;
-        /*res += get_volume_point(4,i*1.0,j*1.0,k*1.0) * mult_random * 0.3;
-        res += get_volume_point(5,i*2.0,j*2.0,k*2.0) * mult_random * 0.3 * 0.5;
-        res += get_volume_point(6,i*4.0,j*4.0,k*4.0) * mult_random * 0.3 * 0.25;*/
-    }
-
-    //res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 3.0;
-
-
-
-
-    //res += get_volume_point(0,i * 2,j*0.08,k * 2) * mult_random * 0.5;
-    //res += get_volume_point(1,i*0.1,j*0.1,k*0.1) * mult_random *0.5;
-    //res += get_volume_point(2,i*0.2,j*0.2,k*0.2) * mult_random *0.25;
-    //res += get_volume_point(3,i*0.4,j*0.4,k*0.4) * mult_random * 0.125;
-    /*res += get_volume_point(0,i*0.2,j*0.2,k*0.2) * 5.0;
-    res += get_volume_point(0,i*0.4,j*0.4,k*0.4) * 2.0;*/
-    /*res += get_volume_point(1,i*0.4,j*0.4,k*0.4) * 1.5;
-    res += get_volume_point(2,i*0.8,j*0.8,k*0.8) * 0.75;*/
-
+    res = dist * mult - 3;
+    res+=get_volume_point(1,i*0.05,j*0.05,k*0.05) * mult_random * 0.3;
     if(res>1.0)
         res = 1.0;
     else if(res<-1.0)
         res = -1.0;
-
-
     return res;
-
 }
 
 //BUILD RANDOM GEOMETRY
@@ -1087,6 +984,7 @@ void Map::build_random_geometry()
 
     SceneNode* root_node = mSceneMgr->getRootSceneNode();
     SceneNode* geometry_node = root_node->createChildSceneNode("geometry");
+    root_node->createChildSceneNode("decals");
 
 
 
@@ -1165,7 +1063,7 @@ void Map::build_random_geometry()
     Vector3 in_end = Vector3(portal_out.x, 0, portal_out.y);
     //in_end = to_global_space(in_end);
     in_end.y = 3;
-    cout<<"in end"<<in_end<<endl;
+
     SceneNode* end_node = root_node->createChildSceneNode("end",in_end);
     end_node->setScale(Vector3::UNIT_SCALE*0.01);
     end_node->attachObject(end);
@@ -1666,5 +1564,30 @@ void Map::set_time(double time)
     {
         params_portal->setNamedConstant( "time", Real(global_time*0.005) );
     }
+}
+
+//ADD DECAL
+void Map::add_decal_triangle(Vector3 a,Vector3 b,Vector3 c)
+{
+    String rand_string = StringConverter::toString(rand());
+    ManualObject*  manual_decals = mSceneMgr->createManualObject("PortalsManual" + rand_string);
+    manual_decals->begin("Main/Decal", RenderOperation::OT_TRIANGLE_LIST);
+
+    manual_decals->position(a);
+    manual_decals->position(b);
+    manual_decals->position(c);
+
+    manual_decals->index(0);
+    manual_decals->index(1);
+    manual_decals->index(2);
+
+    manual_decals->end();
+    String decal_mesh_string = "Decal" + rand_string;
+    manual_decals->convertToMesh(decal_mesh_string);
+    Entity* res = mSceneMgr->createEntity("DecalEntinity" + rand_string,decal_mesh_string);
+    SceneNode* decals = (SceneNode*)mSceneMgr->getRootSceneNode()->getChild("decals");
+    SceneNode* decals_child = decals->createChildSceneNode("decals" + rand_string);
+    decals_child->attachObject(res);
+
 }
 

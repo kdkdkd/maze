@@ -1,7 +1,7 @@
 #include "Ogre\Ogre.h"
 #include "map.h"
 #include "OIS/OIS.h"
-
+#include "utils.h"
 
 class GameLogicClass :public CompositorInstance::Listener
 {
@@ -78,6 +78,7 @@ class Game
         RenderWindow * mWindow;
         Root * mRoot;
         RaySceneQuery * mRayCast;
+        RaySceneQueryResult query_result;
 
         Game();
         ~Game();
@@ -89,7 +90,7 @@ class Game
         void createCamera();
         void createViewport();
         void createRayQuery();
-        void castViewRay();
+        bool castRay(Vector3 pos,Vector3 dir,float max_dist,String filter,bool use_previous,Vector3&a,Vector3&b,Vector3&c,float & distance);
         void setLightPosition(Vector3 pos,double center);
         void createScene();
 };
@@ -128,8 +129,23 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
     bool MazeFrameListener::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
     {
-        cout<<"BUTTON"<<endl;
-        main->castViewRay();
+        Vector3 a,b,c;
+        float dist;
+        float max_dist = 15.0f;
+        if(main->castRay(mCamera->getPosition(),mCamera->getDirection(),max_dist,String("GeometryEntinity"),false,a,b,c,dist)&& dist<max_dist)
+        {
+            float dist_decal;
+            if(main->castRay(mCamera->getPosition(),mCamera->getDirection(),max_dist,String("DecalEntinity"),true,a,b,c,dist_decal)&& dist_decal<max_dist)
+            {
+                if(fabs(dist_decal - dist)<0.05)
+                {
+                    return false;
+                }
+
+            }
+            map->add_decal_triangle(a,b,c);
+        }
+
         return false;
     }
 
@@ -217,7 +233,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
                 mTranslateVector.z = moveScale;
             }
 
-           
+
             const OIS::MouseState &ms = mMouse->getMouseState();
 
 
@@ -240,7 +256,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
                 Vector3 after = mCamera->getPosition();
                 //cout<<after<<endl;
-                //cout<<main->mWindow->getStatistics().triangleCount<<endl;
+                //cout<<main->mWindow->getStatistics().batchCount<<endl;
                 if(map->correct_position(before,after))
                 {
                     mCamera->setPosition(after);
@@ -389,27 +405,66 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
         void  Game::createRayQuery()
         {
             mRayCast = mSceneMgr->createRayQuery(Ray());
-            //mRayCast->setSortByDistance(true);
+            mRayCast->setSortByDistance(true);
         }
-        void  Game::castViewRay()
+
+        bool Game::castRay(Vector3 pos,Vector3 dir,float max_dist,String filter,bool use_previous,Vector3&a,Vector3&b,Vector3&c,float & distance)
         {
-            Vector3 normal=mCamera->getDirection();
-            normal.normalise();
-            Ray ray(mCamera->getPosition(),normal);
-            mRayCast->setRay(ray);
-
-
-            RaySceneQueryResult query_result = mRayCast->execute();
+            Real closest_distance = -1.0f;
+            bool new_closest_found = false;
+            Ray ray(pos,dir);
+            if(!use_previous)
+            {
+                dir.normalise();
+                mRayCast->setRay(ray);
+                query_result = mRayCast->execute();
+            }
             for (size_t qindex = 0; qindex  < query_result.size(); qindex ++)
             {
-                //cout<<query_result[qindex].distance<<endl;
                 if ((query_result[qindex].movable != NULL) && (query_result[qindex].movable->getMovableType().compare("Entity") == 0))
                 {
                     Entity *pentity = static_cast<Ogre::Entity*>(query_result[qindex].movable);
-                    cout<<pentity->getName()<<" "<<query_result[qindex].distance<</*pentity->getBoundingBox()<<*/endl;
-                }
-            }
+                    if(!StringUtil::startsWith(pentity->getName(),filter,false))
+                        continue;
+                    if(query_result[qindex].distance>max_dist)
+                        return new_closest_found;
 
+                    size_t vertex_count;
+                    size_t index_count;
+                    Ogre::Vector3 *vertices;
+                    unsigned long *indices;
+
+                    utils::GetMeshInformation(pentity->getMesh(), vertex_count, vertices, index_count, indices,
+                              pentity->getParentNode()->_getDerivedPosition(),
+                              pentity->getParentNode()->_getDerivedOrientation(),
+                              pentity->getParentNode()->_getDerivedScale());
+
+
+                    for (int i = 0; i < static_cast<int>(index_count); i += 3)
+                    {
+
+
+                         std::pair<bool, Ogre::Real> hit = Ogre::Math::intersects(ray, vertices[indices[i]],vertices[indices[i+1]], vertices[indices[i+2]], true, false);
+                         if (hit.first)
+                         {
+                            if ((closest_distance < 0.0f) ||  (hit.second < closest_distance))
+                            {
+                                closest_distance = hit.second;
+                                distance = closest_distance;
+                                new_closest_found = true;
+                                a = vertices[indices[i]];
+                                b = vertices[indices[i+1]];
+                                c = vertices[indices[i+2]];
+
+                            }
+                         }
+                    }
+
+                    //cout<<pentity->getName()<<" "<<query_result[qindex].distance<</*pentity->getBoundingBox()<<*/endl;
+                }
+
+            }
+            return new_closest_found;
         }
 
 int main()
