@@ -98,6 +98,7 @@ class Map
         std::vector<Quad> quads;
         float blocks_per_point;
         double global_time;
+        int last_decal;
 
         //CONFIG CONSTANTS
         double text_y;
@@ -230,7 +231,7 @@ class Map
 
 
         //ADD DECAL
-        void add_decal_triangle(Vector3 a,Vector3 b,Vector3 c);
+        void add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d);
 
 
 };

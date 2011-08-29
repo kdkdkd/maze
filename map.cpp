@@ -81,6 +81,7 @@ Map::Map(const char * filename,SceneManager * mSceneMgr)
     blocks_per_point = 0.3;
     center_y = (height_y + 2) * scale.y * 0.5;
     global_time = 0.0;
+    last_decal = 0;
 }
 
 
@@ -1567,19 +1568,26 @@ void Map::set_time(double time)
 }
 
 //ADD DECAL
-void Map::add_decal_triangle(Vector3 a,Vector3 b,Vector3 c)
+void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
 {
-    String rand_string = StringConverter::toString(rand());
+    String rand_string = StringConverter::toString(last_decal);
+    last_decal++;
     ManualObject*  manual_decals = mSceneMgr->createManualObject("PortalsManual" + rand_string);
     manual_decals->begin("Main/Decal", RenderOperation::OT_TRIANGLE_LIST);
 
     manual_decals->position(a);
     manual_decals->position(b);
     manual_decals->position(c);
+    manual_decals->position(d);
 
     manual_decals->index(0);
     manual_decals->index(1);
     manual_decals->index(2);
+
+    manual_decals->index(0);
+    manual_decals->index(3);
+    manual_decals->index(1);
+
 
     manual_decals->end();
     String decal_mesh_string = "Decal" + rand_string;

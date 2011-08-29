@@ -8,7 +8,7 @@ material Main/Decal
 			depth_write off
 			cull_hardware none
             cull_software none
-			depth_bias 10
+			depth_bias 1 1
 			
 			texture_unit
 			{

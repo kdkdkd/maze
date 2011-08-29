@@ -134,16 +134,9 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
         float max_dist = 15.0f;
         if(main->castRay(mCamera->getPosition(),mCamera->getDirection(),max_dist,String("GeometryEntinity"),false,a,b,c,dist)&& dist<max_dist)
         {
-            float dist_decal;
-            if(main->castRay(mCamera->getPosition(),mCamera->getDirection(),max_dist,String("DecalEntinity"),true,a,b,c,dist_decal)&& dist_decal<max_dist)
-            {
-                if(fabs(dist_decal - dist)<0.05)
-                {
-                    return false;
-                }
-
-            }
-            map->add_decal_triangle(a,b,c);
+            std::vector<Vector3> res = utils::FindBestQuadInsideTriangle(a,b,c);
+            if(res.size()>0)
+                map->add_decal_quad(res[0],res[1],res[2],res[3]);
         }
 
         return false;

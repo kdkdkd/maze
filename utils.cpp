@@ -2,14 +2,107 @@
 
 namespace utils
 {
+
+std::vector<Vector3> FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c)
+{
+    std::vector<Vector3> res;
+    Vector3 ab = b - a;
+    Vector3 ac = c - a;
+    Vector3 cb = b - c;
+
+    Vector3 normal = ab.crossProduct(ac);
+    Real S = 0.5*(normal).length();
+    normal.normalise();
+    Real la = cb.length();
+    Real lb = ac.length();
+    Real lc = ab.length();
+    Real p = (la + lb + lc)*0.5;
+    Real r = S/p;
+
+    if(!((fabs(normal.x)>0.9 || fabs(normal.y)>0.9 || fabs(normal.z)>0.9) && r>0.9))
+    {
+        return res;
+    }
+    Vector3 center = a + (lb * ab + lc * ac) / (la + lb + lc);
+    Vector3 ar = a - center;
+    Vector3 br = b - center;
+    Vector3 cr = c - center;
+
+    Real A = ar.y * (br.z - cr.z) + br.y * (cr.z - ar.z) + cr.y * (ar.z - br.z);
+    Real B = ar.z * (br.x - cr.x) + br.z  *(cr.x - ar.x) + cr.z * (ar.x - br.x);
+    Real C = ar.x * (br.y - cr.y) + br.x * (cr.y - ar.y) + cr.x * (ar.y - br.y);
+    Real D = - (ar.x * (br.y * cr.z - cr.y * br.z) + br.x * (cr.y * ar.z - ar.y * cr.z) + cr.x * (ar.y * br.z - br.y * ar.z));
+
+
+
+
+
+    double z1,z2;
+
+    if(fabs(normal.x)>0.9)
+    {
+        utils::SolveQuadricEquation(C*C+A*A,2.0*D*C,D*D - 2.0*r*r*A*A,z1,z2);
+        res.push_back(Vector3((- D - C * z1)/A,0.0,z1) + center);
+        res.push_back(Vector3((- D - C * z2)/A,0.0,z2) + center);
+
+        utils::SolveQuadricEquation(B*B+A*A,2.0*B*D,D*D - 2.0*r*r*A*A,z1,z2);
+        res.push_back(Vector3((- D - B * z1)/A,z1,0.0) + center);
+        res.push_back(Vector3((- D - B * z2)/A,z2,0.0) + center);
+    }
+    else if(fabs(normal.y)>0.9)
+    {
+        utils::SolveQuadricEquation(C*C+B*B,2.0*D*C,D*D - 2.0*r*r*B*B,z1,z2);
+        res.push_back(Vector3(0.0,(- D - C * z1)/B,z1) + center);
+        res.push_back(Vector3(0.0,(- D - C * z2)/B,z2) + center);
+
+        utils::SolveQuadricEquation(A*A+B*B,2.0*D*A,D*D - 2.0*r*r*B*B,z1,z2);
+        res.push_back(Vector3(z1,(- D - A * z1)/B,0.0) + center);
+        res.push_back(Vector3(z2,(- D - A * z2)/B,0.0) + center);
+
+    }
+    else if(fabs(normal.z)>0.9)
+    {
+        utils::SolveQuadricEquation(C*C+B*B,2.0*D*B,D*D - 2.0*r*r*C*C,z1,z2);
+        res.push_back(Vector3(0.0,z1,(- D - B * z1)/C) + center);
+        res.push_back(Vector3(0.0,z2,(- D - B * z2)/C) + center);
+
+        utils::SolveQuadricEquation(C*C+A*A,2.0*D*A,D*D - 2.0*r*r*C*C,z1,z2);
+        res.push_back(Vector3(z1,0.0,(- D - A * z1)/C) + center);
+        res.push_back(Vector3(z2,0.0,(- D - A * z2)/C) + center);
+
+    }
+    return res;
+}
+int SolveQuadricEquation(double a, double b, double c, double& x1, double& x2)
+{
+    double D = b*b - 4.0*a*c;
+
+    if(D<0)
+        return 0;
+    else if(D<0.01)
+    {
+        x1 = - b / (2.0 * a);
+        return 1;
+    }
+
+    double r1 = - b / (2.0 * a);
+    double r2 = sqrt(D) / (2.0 * a);
+
+    x1 = r1 + r2;
+    x2 = r1 - r2;
+
+    return 2;
+}
+
+
 void GetMeshInformation(const Ogre::MeshPtr mesh,
-                                size_t &vertex_count,
-                                Ogre::Vector3* &vertices,
-                                size_t &index_count,
-                                unsigned long* &indices,
-                                const Ogre::Vector3 &position,
-                                const Ogre::Quaternion &orient,
-                                const Ogre::Vector3 &scale)
+                        size_t &vertex_count,
+                        Ogre::Vector3* &vertices,
+                        size_t &index_count,
+                        unsigned long* &indices,
+                        const Ogre::Vector3 &position,
+                        const Ogre::Quaternion &orient,
+                        const Ogre::Vector3 &scale)
 {
     bool added_shared = false;
     size_t current_offset = 0;
