@@ -1576,9 +1576,13 @@ void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
     manual_decals->begin("Main/Decal", RenderOperation::OT_TRIANGLE_LIST);
 
     manual_decals->position(a);
+    manual_decals->textureCoord(0,0);
     manual_decals->position(b);
+    manual_decals->textureCoord(1,1);
     manual_decals->position(c);
+    manual_decals->textureCoord(0,1);
     manual_decals->position(d);
+    manual_decals->textureCoord(1,0);
 
     manual_decals->index(0);
     manual_decals->index(1);
