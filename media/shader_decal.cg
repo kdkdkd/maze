@@ -6,20 +6,27 @@ void VertDecal(
   
 		uniform float4x4 worldviewproj, 
 		uniform float4 lightPosition,
+		uniform float3 eyePosition,
  
 		out float4 oClipPos    : POSITION,
 		out float4 oPos     : TEXCOORD0,
 		out float3 oNorm     : TEXCOORD1,
-        out float4 oLightPos    : TEXCOORD2,
-		out float2 oUv    : TEXCOORD3
+        out float3 LightDir    : TEXCOORD2,
+		out float2 oUv    : TEXCOORD3,
+		out float3 HalfAngle    : TEXCOORD4,
+		out float3 oLightPosition    : TEXCOORD5
                   
 	  ) 
 {
 	oClipPos = mul(worldviewproj, position);
     oPos = position;
 	oNorm = normal;
-	oLightPos = lightPosition;
+	
 	oUv = uv;
+	float3 EyeDir = eyePosition - position.xyz;
+	LightDir = lightPosition.xyz -  (position * lightPosition.w);
+	HalfAngle = normalize(normalize(LightDir) + normalize(EyeDir));
+	oLightPosition = lightPosition;
  
 }
 
@@ -28,39 +35,40 @@ void FragDecal(
  
              float4 pos         : TEXCOORD0,
 			 float3 norm        : TEXCOORD1,
-			 float4 lightpos    : TEXCOORD2,
+			 float3 LightDirNotNorm    : TEXCOORD2,
 			 float2 uv          : TEXCOORD3,
+			 float3 HalfAngleNotNorm   : TEXCOORD4,
+			 float3 lightpos   : TEXCOORD5,
 
 			 uniform float4 lightDiffuse,
-             
-			 uniform sampler2D texture  : TEXUNIT0,
+			 uniform float4 lightSpecular,
+             uniform float exponent,
 			 
-
+			 uniform sampler2D texture  : TEXUNIT0,
+			 uniform sampler2D textureNormal  : TEXUNIT1,
              out float4 oColor : COLOR 
 )
  
 {
 	
 	
-	
 	float3 N = normalize(norm);
 	
-	
-	oColor = tex2D(texture,uv);  
-	float w = oColor.w;
-	
-    float3 LightDir = normalize(lightpos.xyz - pos.xyz);
+    float3 LightDir = normalize(LightDirNotNorm);
+    float3 HalfAngle = normalize(HalfAngleNotNorm);
+ 
+    float NdotL = dot(LightDir, N);
+    float NdotH = dot(HalfAngle, N);
+    float4 Lit = lit(NdotL,NdotH,exponent);
+ 
     
-    float NdotL = saturate(dot(LightDir, N));
-    
-	
-	//oColor += lightDiffuse*NdotL * 0.1;
+    float4 textColour = tex2D(texture, uv);
+ 
+    oColor = Lit.y*0.05 +  Lit.z*0.1 + textColour;
 	
 	float dist = distance(pos,lightpos);
     oColor /=  dist;
 	oColor *= 15.0;
 	
-	oColor.w = w;
-	
-	
+	oColor.w = textColour.w;
 }
