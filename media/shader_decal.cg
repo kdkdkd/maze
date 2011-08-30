@@ -2,6 +2,7 @@ void VertDecal(
 		float4 position : POSITION, 
 		float3 normal   : NORMAL,
 		float2 uv   : TEXCOORD0,
+		float3 tangent   : TANGENT,
 							
   
 		uniform float4x4 worldviewproj, 
@@ -10,35 +11,48 @@ void VertDecal(
  
 		out float4 oClipPos    : POSITION,
 		out float4 oPos     : TEXCOORD0,
-		out float3 oNorm     : TEXCOORD1,
+		out float3 oLightPosition     : TEXCOORD1,
         out float3 LightDir    : TEXCOORD2,
 		out float2 oUv    : TEXCOORD3,
-		out float3 HalfAngle    : TEXCOORD4,
-		out float3 oLightPosition    : TEXCOORD5
+		out float3 HalfAngle    : TEXCOORD4
+		
                   
 	  ) 
 {
 	oClipPos = mul(worldviewproj, position);
     oPos = position;
-	oNorm = normal;
-	
-	oUv = uv;
-	float3 EyeDir = eyePosition - position.xyz;
-	LightDir = lightPosition.xyz -  (position * lightPosition.w);
-	HalfAngle = normalize(normalize(LightDir) + normalize(EyeDir));
 	oLightPosition = lightPosition;
+	oUv = uv;
+	
+	float3 binormal = cross(tangent, normal);
+	float3x3 rotation = float3x3(tangent,-binormal,normal);
+	
+	
+	
+	
+	LightDir = lightPosition.xyz -  (position * lightPosition.w);
+	LightDir = mul(rotation, LightDir);
+	
+	float3 EyeDir = mul(rotation,eyePosition - position.xyz);
+	HalfAngle = normalize(normalize(LightDir) + normalize(EyeDir));
+	
+	
+	
+	
+	
+	
  
 }
-
+float3  expand(float3  v) { return (v - 0.5) * 2; }
 
 void FragDecal(
  
              float4 pos         : TEXCOORD0,
-			 float3 norm        : TEXCOORD1,
+			 float3 lightpos        : TEXCOORD1,
 			 float3 LightDirNotNorm    : TEXCOORD2,
 			 float2 uv          : TEXCOORD3,
 			 float3 HalfAngleNotNorm   : TEXCOORD4,
-			 float3 lightpos   : TEXCOORD5,
+			 
 
 			 uniform float4 lightDiffuse,
 			 uniform float4 lightSpecular,
@@ -52,11 +66,11 @@ void FragDecal(
 {
 	
 	
-	float3 N = normalize(norm);
-	
+	float3 N = tex2D(textureNormal, uv).xyz;
+	N = expand(N);
     float3 LightDir = normalize(LightDirNotNorm);
     float3 HalfAngle = normalize(HalfAngleNotNorm);
- 
+	
     float NdotL = dot(LightDir, N);
     float NdotH = dot(HalfAngle, N);
     float4 Lit = lit(NdotL,NdotH,exponent);
@@ -64,11 +78,12 @@ void FragDecal(
     
     float4 textColour = tex2D(texture, uv);
  
-    oColor = Lit.y*0.05 +  Lit.z*0.1 + textColour;
+    oColor = Lit.y + /* Lit.z +*/ textColour;
 	
 	float dist = distance(pos,lightpos);
     oColor /=  dist;
 	oColor *= 15.0;
 	
 	oColor.w = textColour.w;
+	//oColor = float4(LightDir,1);
 }
