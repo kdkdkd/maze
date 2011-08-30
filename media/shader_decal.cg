@@ -1,0 +1,66 @@
+void VertDecal(
+		float4 position : POSITION, 
+		float3 normal   : NORMAL,
+		float2 uv   : TEXCOORD0,
+							
+  
+		uniform float4x4 worldviewproj, 
+		uniform float4 lightPosition,
+ 
+		out float4 oClipPos    : POSITION,
+		out float4 oPos     : TEXCOORD0,
+		out float3 oNorm     : TEXCOORD1,
+        out float4 oLightPos    : TEXCOORD2,
+		out float2 oUv    : TEXCOORD3
+                  
+	  ) 
+{
+	oClipPos = mul(worldviewproj, position);
+    oPos = position;
+	oNorm = normal;
+	oLightPos = lightPosition;
+	oUv = uv;
+ 
+}
+
+
+void FragDecal(
+ 
+             float4 pos         : TEXCOORD0,
+			 float3 norm        : TEXCOORD1,
+			 float4 lightpos    : TEXCOORD2,
+			 float2 uv          : TEXCOORD3,
+
+			 uniform float4 lightDiffuse,
+             
+			 uniform sampler2D texture  : TEXUNIT0,
+			 
+
+             out float4 oColor : COLOR 
+)
+ 
+{
+	
+	
+	
+	float3 N = normalize(norm);
+	
+	
+	oColor = tex2D(texture,uv);  
+	float w = oColor.w;
+	
+    float3 LightDir = normalize(lightpos.xyz - pos.xyz);
+    
+    float NdotL = saturate(dot(LightDir, N));
+    
+	
+	//oColor += lightDiffuse*NdotL * 0.1;
+	
+	float dist = distance(pos,lightpos);
+    oColor /=  dist;
+	oColor *= 15.0;
+	
+	oColor.w = w;
+	
+	
+}

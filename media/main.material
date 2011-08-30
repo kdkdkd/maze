@@ -46,10 +46,7 @@ material Main/Cave
 			{
 				texture rust.png
 			}
-			texture_unit
-			{
-				texture noise.png
-			}
+
 		}
 	}
 }

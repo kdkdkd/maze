@@ -38,41 +38,62 @@ Vector3 FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c,std::vector<Vec
 
 
     double z1,z2;
-
+    res.resize(4);
+    int index1 = 0;
+    int index2 = 2;
     if(fabs(normal.x)>0.9)
     {
+        if(normal.x<0)
+        {
+            index1 = 2;
+            index2 = 0;
+        }
         utils::SolveQuadricEquation(C*C+A*A,2.0*D*C,D*D - 2.0*r*r*A*A,z1,z2);
-        res.push_back(Vector3((- D - C * z1)/A,0.0,z1) + center);
-        res.push_back(Vector3((- D - C * z2)/A,0.0,z2) + center);
+        res[index1] = (Vector3((- D - C * z1)/A,0.0,z1) + center);
+        res[index1+1] = (Vector3((- D - C * z2)/A,0.0,z2) + center);
 
         utils::SolveQuadricEquation(B*B+A*A,2.0*B*D,D*D - 2.0*r*r*A*A,z1,z2);
-        res.push_back(Vector3((- D - B * z1)/A,z1,0.0) + center);
-        res.push_back(Vector3((- D - B * z2)/A,z2,0.0) + center);
+        res[index2] = (Vector3((- D - B * z1)/A,z1,0.0) + center);
+        res[index2+1] = (Vector3((- D - B * z2)/A,z2,0.0) + center);
     }
     else if(fabs(normal.y)>0.9)
     {
-        utils::SolveQuadricEquation(C*C+B*B,2.0*D*C,D*D - 2.0*r*r*B*B,z1,z2);
-        res.push_back(Vector3(0.0,(- D - C * z1)/B,z1) + center);
-        res.push_back(Vector3(0.0,(- D - C * z2)/B,z2) + center);
+        if(normal.y<0)
+        {
+            index1 = 2;
+            index2 = 0;
+        }
 
         utils::SolveQuadricEquation(A*A+B*B,2.0*D*A,D*D - 2.0*r*r*B*B,z1,z2);
-        res.push_back(Vector3(z1,(- D - A * z1)/B,0.0) + center);
-        res.push_back(Vector3(z2,(- D - A * z2)/B,0.0) + center);
+        res[index1] = (Vector3(z1,(- D - A * z1)/B,0.0) + center);
+        res[index1+1] = (Vector3(z2,(- D - A * z2)/B,0.0) + center);
+
+        utils::SolveQuadricEquation(C*C+B*B,2.0*D*C,D*D - 2.0*r*r*B*B,z1,z2);
+        res[index2] = (Vector3(0.0,(- D - C * z1)/B,z1) + center);
+        res[index2 + 1] = (Vector3(0.0,(- D - C * z2)/B,z2) + center);
 
     }
     else if(fabs(normal.z)>0.9)
     {
-        utils::SolveQuadricEquation(C*C+B*B,2.0*D*B,D*D - 2.0*r*r*C*C,z1,z2);
-        res.push_back(Vector3(0.0,z1,(- D - B * z1)/C) + center);
-        res.push_back(Vector3(0.0,z2,(- D - B * z2)/C) + center);
+        if(normal.z>0)
+        {
+            index1 = 2;
+            index2 = 0;
+        }
 
         utils::SolveQuadricEquation(C*C+A*A,2.0*D*A,D*D - 2.0*r*r*C*C,z1,z2);
-        res.push_back(Vector3(z1,0.0,(- D - A * z1)/C) + center);
-        res.push_back(Vector3(z2,0.0,(- D - A * z2)/C) + center);
+        res[index1] = (Vector3(z1,0.0,(- D - A * z1)/C) + center);
+        res[index1 + 1] = (Vector3(z2,0.0,(- D - A * z2)/C) + center);
+
+
+        utils::SolveQuadricEquation(C*C+B*B,2.0*D*B,D*D - 2.0*r*r*C*C,z1,z2);
+        res[index2] = (Vector3(0.0,z1,(- D - B * z1)/C) + center);
+        res[index2 + 1] = (Vector3(0.0,z2,(- D - B * z2)/C) + center);
 
     }
     return center;
 }
+
 int SolveQuadricEquation(double a, double b, double c, double& x1, double& x2)
 {
     double D = b*b - 4.0*a*c;

@@ -1,3 +1,31 @@
+vertex_program VertDecal cg 
+{ 
+       source shader_decal.cg 
+ 
+       default_params 
+       { 
+			param_named_auto worldviewproj worldviewproj_matrix
+			param_named_auto lightPosition light_position_object_space 0
+       } 
+	
+       entry_point VertDecal 
+       profiles vs_1_1 arbvp1 
+}
+ 
+fragment_program FragDecal cg 
+ { 
+       source shader_decal.cg 
+	   default_params 
+       {
+			param_named_auto lightDiffuse light_diffuse_colour 0
+       } 
+       entry_point FragDecal
+       profiles ps_2_0 arbfp1
+ }
+
+
+
+
 material Main/Decal
 {
 	technique
@@ -9,11 +37,18 @@ material Main/Decal
 			cull_hardware none
             cull_software none
 			depth_bias 1 1
+	
+			vertex_program_ref VertDecal
+            { 
+            }
+			fragment_program_ref FragDecal
+            {
+				
+            }
 			
 			texture_unit
 			{
 				texture decal.png
-				
 			}
 		}
 	}

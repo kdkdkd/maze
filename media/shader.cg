@@ -30,12 +30,9 @@ void Frag(
 			 float4 lightpos        : TEXCOORD2,
 
 			 uniform float4 lightDiffuse,
-             uniform float4 lightSpecular,
-             uniform float exponent,
              uniform float4 ambient,
 			 uniform sampler2D texture  : TEXUNIT0,
-			 uniform sampler2D texture2  : TEXUNIT1,
-			 uniform sampler2D texture3  : TEXUNIT2,
+
 			 
 
              out float4 oColor : COLOR 
@@ -68,7 +65,7 @@ void Frag(
 	oColor *=  (lightDiffuse * NdotL + ambient * oColor );
 	float dist = distance(pos,lightpos);
 
-	oColor /=  distance(pos,lightpos);
+	oColor /=  dist;
 	oColor *= 20.0;
 	
 	
