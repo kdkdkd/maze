@@ -1,4 +1,4 @@
-<map>
+<map maxdecal="10">
 	<portalin point="p11"/>
 	<portalout point="p45"/>
 	<portals>

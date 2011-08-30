@@ -115,9 +115,11 @@ class Map
         int volume_y;
         int volume_z;
 
+
         std::vector<PortalPair> portals;
 
     public:
+        int max_decal;
         std::vector<Vector3> decals;
         double center_y;
         double height_y;
@@ -236,6 +238,9 @@ class Map
 
         //SEARCH DECAL IN SAME POSITION
         bool search_for_decal(Vector3 decal);
+
+        //GET MAXIMUM DECAL NUMBER
+        int get_max_decal();
 
 
 };

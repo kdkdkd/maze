@@ -81,6 +81,7 @@ Map::Map(const char * filename,SceneManager * mSceneMgr)
     blocks_per_point = 0.3;
     center_y = (height_y + 2) * scale.y * 0.5;
     global_time = 0.0;
+    max_decal = get_max_decal();
 }
 
 
@@ -1612,4 +1613,11 @@ bool Map::search_for_decal(Vector3 decal)
         }
     }
     return false;
+}
+
+
+//GET MAXIMUM DECAL NUMBER
+int Map::get_max_decal()
+{
+    return doc.child("map").attribute("maxdecal").as_int();
 }

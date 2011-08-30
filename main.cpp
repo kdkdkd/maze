@@ -129,6 +129,9 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
     bool MazeFrameListener::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
     {
+        if(map->decals.size()>=map->max_decal)
+           return false;
+
         Vector3 a,b,c;
         float dist;
         float max_dist = 15.0f;
