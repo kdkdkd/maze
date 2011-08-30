@@ -3,9 +3,9 @@
 namespace utils
 {
 
-std::vector<Vector3> FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c)
+//RETURNS CENTER OF CIRCLE, SAVES POINTS TO RES
+Vector3 FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c,std::vector<Vector3>& res)
 {
-    std::vector<Vector3> res;
     Vector3 ab = b - a;
     Vector3 ac = c - a;
     Vector3 cb = b - c;
@@ -21,7 +21,7 @@ std::vector<Vector3> FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c)
 
     if(!((fabs(normal.x)>0.9 || fabs(normal.y)>0.9 || fabs(normal.z)>0.9) && r>0.9))
     {
-        return res;
+        return Vector3::ZERO;
     }
     Vector3 center = a + (lb * ab + lc * ac) / (la + lb + lc);
     Vector3 ar = a - center;
@@ -71,7 +71,7 @@ std::vector<Vector3> FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c)
         res.push_back(Vector3(z2,0.0,(- D - A * z2)/C) + center);
 
     }
-    return res;
+    return center;
 }
 int SolveQuadricEquation(double a, double b, double c, double& x1, double& x2)
 {

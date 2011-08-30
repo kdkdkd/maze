@@ -46,18 +46,16 @@
 		<Unit filename="map.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="optimization.cpp">
-			<Option compile="0" />
-		</Unit>
+		<Unit filename="optimization.cpp" />
 		<Unit filename="optimization.h">
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="utils.cpp" />
+		<Unit filename="utils.h" />
 		<Unit filename="xml\pugiconfig.hpp">
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="xml\pugixml.cpp">
-			<Option compile="0" />
-		</Unit>
+		<Unit filename="xml\pugixml.cpp" />
 		<Unit filename="xml\pugixml.hpp">
 			<Option target="Release" />
 		</Unit>

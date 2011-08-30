@@ -81,7 +81,6 @@ Map::Map(const char * filename,SceneManager * mSceneMgr)
     blocks_per_point = 0.3;
     center_y = (height_y + 2) * scale.y * 0.5;
     global_time = 0.0;
-    last_decal = 0;
 }
 
 
@@ -1570,8 +1569,7 @@ void Map::set_time(double time)
 //ADD DECAL
 void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
 {
-    String rand_string = StringConverter::toString(last_decal);
-    last_decal++;
+    String rand_string = StringConverter::toString(decals.size());
     ManualObject*  manual_decals = mSceneMgr->createManualObject("PortalsManual" + rand_string);
     manual_decals->begin("Main/Decal", RenderOperation::OT_TRIANGLE_LIST);
 
@@ -1603,3 +1601,15 @@ void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
 
 }
 
+//SEARCH DECAL IN SAME POSITION
+bool Map::search_for_decal(Vector3 decal)
+{
+    for(std::vector<Vector3>::iterator it = decals.begin();it!=decals.end();++it)
+    {
+        if(it->squaredDistance(decal)<0.1)
+        {
+            return true;
+        }
+    }
+    return false;
+}

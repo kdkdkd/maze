@@ -134,9 +134,13 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
         float max_dist = 15.0f;
         if(main->castRay(mCamera->getPosition(),mCamera->getDirection(),max_dist,String("GeometryEntinity"),false,a,b,c,dist)&& dist<max_dist)
         {
-            std::vector<Vector3> res = utils::FindBestQuadInsideTriangle(a,b,c);
-            if(res.size()>0)
+            std::vector<Vector3> res;
+            Vector3 center = utils::FindBestQuadInsideTriangle(a,b,c,res);
+            if(res.size()>0 && !map->search_for_decal(center))
+            {
+                map->decals.push_back(center);
                 map->add_decal_quad(res[0],res[1],res[2],res[3]);
+            }
         }
 
         return false;
@@ -179,6 +183,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
         mMouse->setBuffered(true);
         mMouse->setEventCallback(this);
     }
+
 
 
     bool MazeFrameListener::frameRenderingQueued(const FrameEvent& evt)
