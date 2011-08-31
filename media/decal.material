@@ -21,7 +21,7 @@ fragment_program FragDecal cg
 			param_named_auto lightDiffuse light_diffuse_colour 0
 			param_named_auto lightSpecular light_specular_colour 0
  
-            param_named exponent float 512
+            param_named exponent float 16
        } 
        entry_point FragDecal
        profiles ps_2_0 arbfp1
