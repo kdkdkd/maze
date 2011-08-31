@@ -24,8 +24,8 @@ void VertDecal(
 	oLightPosition = lightPosition;
 	oUv = uv;
 	
-	float3 binormal = cross(tangent, normal);
-	float3x3 rotation = float3x3(tangent,-binormal,normal);
+	float3 binormal = -cross(tangent, normal);
+	float3x3 rotation = float3x3(tangent,binormal,normal);
 	
 	
 	
@@ -33,14 +33,11 @@ void VertDecal(
 	LightDir = lightPosition.xyz -  (position * lightPosition.w);
 	LightDir = mul(rotation, LightDir);
 	
+	
+	
+	
 	float3 EyeDir = mul(rotation,eyePosition - position.xyz);
 	HalfAngle = normalize(normalize(LightDir) + normalize(EyeDir));
-	
-	
-	
-	
-	
-	
  
 }
 float3  expand(float3  v) { return (v - 0.5) * 2; }
@@ -78,7 +75,7 @@ void FragDecal(
     
     float4 textColour = tex2D(texture, uv);
  
-    oColor = Lit.y + /* Lit.z +*/ textColour;
+    oColor = Lit.y * 0.25 + /* Lit.z +*/ textColour;
 	
 	float dist = distance(pos,lightpos);
     oColor /=  dist;

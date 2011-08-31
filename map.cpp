@@ -1577,8 +1577,8 @@ void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
     Vector3 normal = (a-b).crossProduct(a-c);
     normal.normalise();
 
-    Vector3 tangent = b-c;
-
+    Vector3 tangent = c-b;
+    tangent.normalise();
 
     manual_decals->position(a);
     manual_decals->textureCoord(0,0);
