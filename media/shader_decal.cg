@@ -73,11 +73,11 @@ void FragDecal(
     
     float4 textColour = tex2D(texture, uv);
  
-    oColor = saturate(Lit.y * lightDiffuse * 0.125 + Lit.z * 0.125 + textColour);
+    oColor = saturate(Lit.y * lightDiffuse*0.5 + Lit.z * lightSpecular*0.5 + textColour);
 	
 	float dist = distance(pos,lightpos);
     oColor /=  dist;
-	oColor *= 15.0;
+	oColor *= 10.0;
 	
 	oColor.w = textColour.w;
 }
