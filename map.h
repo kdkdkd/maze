@@ -5,6 +5,7 @@
 #include "Ogre\Ogre.h"
 #include "xml/pugixml.hpp"
 #include "optimization.h"
+#include "utils.h"
 #include <vector>
 
 using namespace pugi;

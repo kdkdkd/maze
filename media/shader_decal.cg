@@ -24,8 +24,8 @@ void VertDecal(
 	oLightPosition = lightPosition;
 	oUv = uv;
 	
-	float3 binormal = -cross(tangent, normal);
-	float3x3 rotation = float3x3(tangent,binormal,normal);
+	float3 binormal = cross(tangent, normal);
+	float3x3 rotation = float3x3(-tangent,binormal,normal);
 	
 	
 	

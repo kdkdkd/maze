@@ -1567,6 +1567,7 @@ void Map::set_time(double time)
     }
 }
 
+
 //ADD DECAL
 void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
 {
@@ -1577,27 +1578,60 @@ void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
     Vector3 normal = (a-b).crossProduct(a-c);
     normal.normalise();
 
-    Vector3 tangent = c-b;
+    double angle = ((float)rand()/RAND_MAX) * M_PI;
+
+    Vector2 tex0 = utils::texture_rotate(Vector2(0,0),angle);
+    Real u0 = tex0.x;
+    Real v0 = tex0.y;
+    Vector2 tex1 = utils::texture_rotate(Vector2(1,1),angle);
+    Real u1 = tex1.x;
+    Real v1 = tex1.y;
+
+    Vector2 tex2 = utils::texture_rotate(Vector2(0,1),angle);
+    Real u2 = tex2.x;
+    Real v2 = tex2.y;
+
+    Vector3 tangent;
+    Vector3 P0 = a;
+    Vector3 P1 = b;
+    Vector3 P2 = c;
+    //Vector3 Q1 = P1 − P0;
+    //Vector3 Q2 = P2 − P0;
+    Vector3 Q1 = P1 - P0;
+    Vector3 Q2 = P2 - P0;
+    Real s1 = u1 - u0;
+    Real s2 = u2 - u0;
+    Real t1 = v1 - v0;
+    Real t2 = v2 - v0;
+    Real div = 1.0 / (s1*t2 - s2*t1);
+    tangent.x = div * (t2 * Q1.x - t1 * Q2.x);
+    tangent.y = div * (t2 * Q1.y - t1 * Q2.y);
+    tangent.z = div * (t2 * Q1.z - t1 * Q2.z);
+
+
     tangent.normalise();
 
+
+
+
     manual_decals->position(a);
-    manual_decals->textureCoord(0,0);
+    manual_decals->textureCoord(tex0);
     manual_decals->normal(normal);
     manual_decals->tangent(tangent);
 
     manual_decals->position(b);
-    manual_decals->textureCoord(1,1);
+    manual_decals->textureCoord(tex1);
     manual_decals->normal(normal);
     manual_decals->tangent(tangent);
 
 
     manual_decals->position(c);
-    manual_decals->textureCoord(0,1);
+    manual_decals->textureCoord(tex2);
     manual_decals->normal(normal);
     manual_decals->tangent(tangent);
 
     manual_decals->position(d);
-    manual_decals->textureCoord(1,0);
+    manual_decals->textureCoord(utils::texture_rotate(Vector2(1,0),angle));
     manual_decals->normal(normal);
     manual_decals->tangent(tangent);
 

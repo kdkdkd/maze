@@ -3,6 +3,16 @@
 namespace utils
 {
 
+//ROTATE TEXTURE COORDINATES TO GIVEN ANGLE
+Vector2 texture_rotate(Vector2 coord,double angle)
+{
+    Vector2 translate(0.5,0.5);
+    Vector2 rot = coord - translate;
+    Vector2 res(cos(angle)*rot.x - sin(angle)*rot.y,sin(angle)*rot.x + cos(angle)*rot.y);
+
+    return res + translate;
+}
+
 //RETURNS CENTER OF CIRCLE, SAVES POINTS TO RES
 Vector3 FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c,std::vector<Vector3>& res)
 {

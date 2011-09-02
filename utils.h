@@ -17,6 +17,9 @@ void GetMeshInformation(const Ogre::MeshPtr mesh,
 
 int SolveQuadricEquation(double a, double b, double c, double& x1, double& x2);
 Vector3 FindBestQuadInsideTriangle(Vector3 a,Vector3 b,Vector3 c,std::vector<Vector3>& res);
+//ROTATE TEXTURE COORDINATES TO GIVEN ANGLE
+Vector2 texture_rotate(Vector2 coord,double angle);
+
 
 }
 

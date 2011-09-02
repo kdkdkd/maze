@@ -53,10 +53,12 @@ material Main/Decal
 			texture_unit
 			{
 				texture decal.png
+				tex_address_mode clamp
 			}
 			texture_unit
 			{
 				texture decal_normal.png
+				tex_address_mode clamp
 			}
 		}
 	}
