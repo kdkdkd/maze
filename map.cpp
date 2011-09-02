@@ -1551,6 +1551,16 @@ Portal * Map::find_portal(Vector2 position)
     return 0;
 }
 
+//CHECK IF LEVEL IS NED AND USER WINS
+bool Map::is_out(Vector2 position)
+{
+    position.x /= scale.x;
+    position.y /= scale.y;
+    float scale_y_local = to_real_y(0.075);
+    scale_y_local *= scale_y_local;
+    return (portal_out.position.squaredDistance(position)<scale_y_local);
+}
+
 //SET TIME FOR RENDERING
 void Map::set_time(double time)
 {

@@ -226,6 +226,9 @@ class Map
         //FINDS PORTAL, IF NOT FOUND - RETURNS ZERO
         Portal * find_portal(Vector2 position);
 
+        //CHECK IF LEVEL IS NED AND USER WINS
+        bool is_out(Vector2 position);
+
         //SET TIME FOR RENDERING
         void set_time(double time);
 

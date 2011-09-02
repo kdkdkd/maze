@@ -289,6 +289,9 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
                     mRotY = 0.0;
                     mCamera->yaw(mRotX);
+                }else if(map->is_out(pos2d))
+                {
+                    
                 }
             }
 
