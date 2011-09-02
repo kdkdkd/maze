@@ -128,7 +128,7 @@ class Map
         double eps_dist;
         double max_allowed_step;
         Vector2 portal_in;
-        Vector2 portal_out;
+        Portal portal_out;
 
 
         Map(const char * filename,SceneManager * mSceneMgr);
@@ -172,10 +172,6 @@ class Map
 
         //GET PORTAL IN
         Vector2 get_portal_in();
-
-        //GET PORTAL OUT
-        Vector2 get_portal_out();
-
 
 
 

@@ -70,8 +70,6 @@ Map::Map(const char * filename,SceneManager * mSceneMgr)
     doc.load_file(filename);
     portal_in = to_real(get_portal_in());
     portal_in.y+=5;
-    portal_out = to_real(get_portal_out());
-    portal_out.y+=5;
     this->mSceneMgr = mSceneMgr;
     get_dimensions();
     text_y = 2.0;
@@ -574,15 +572,9 @@ int Map::get_index_by_id(const char* id)
 //GET PORTAL IN
 Vector2 Map::get_portal_in()
 {
-    return get_point_by_id(doc.child("map").child("portalin").attribute("point").value());
+    xml_node portal_in = doc.child("map").child("portalin");
+    return Vector2(portal_in.attribute("x").as_double(),portal_in.attribute("y").as_double());
 }
-
-//GET PORTAL OUT
-Vector2 Map::get_portal_out()
-{
-    return get_point_by_id(doc.child("map").child("portalout").attribute("point").value());
-}
-
 
 
 
@@ -1061,13 +1053,13 @@ void Map::build_random_geometry()
     Entity* end = mSceneMgr->createEntity("end","sphere.mesh");
     end->setMaterialName("Main/End");
 
-    Vector3 in_end = Vector3(portal_out.x, 0, portal_out.y);
+/*    Vector3 in_end = Vector3(portal_out.x, 0, portal_out.y);
     //in_end = to_global_space(in_end);
     in_end.y = 3;
 
     SceneNode* end_node = root_node->createChildSceneNode("end",in_end);
     end_node->setScale(Vector3::UNIT_SCALE*0.01);
-    end_node->attachObject(end);
+    end_node->attachObject(end);*/
 
 
     //PORTALS
@@ -1184,6 +1176,8 @@ Entity * Map::render_portals()
         render_portal(manual_portals,index,it->portal2,it->color);
         index += 4;
     }
+    render_portal(manual_portals,index,portal_out,Vector3(1,1,1));
+    index+=4;
     if(!index)
         return 0;
 
@@ -1307,7 +1301,7 @@ void Map::parse_portals()
         {
             insert_portal.color = Vector3(0,1,0);
         }
-        else
+        else if (strcmp(portalpair.node().attribute("color").value(),"blue")==0)
         {
             insert_portal.color = Vector3(0,0,1);
         }
@@ -1320,6 +1314,8 @@ void Map::parse_portals()
 
         this->portals.push_back(insert_portal);
     }
+
+    portal_out = add_portal(doc.child("map").child("portalout"));
 
 
 
@@ -1379,8 +1375,6 @@ void Map::merge_block_horizontal(Block b)
 //BUILD REGULAR GEOMETRY
 void Map::build_geometry()
 {
-
-
     xpath_node_set points = doc.select_nodes("/map/points/point");
 
     for(xpath_node_set::const_iterator it = points.begin(); it != points.end(); ++it)
@@ -1595,8 +1589,6 @@ void Map::add_decal_quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d)
     Vector3 P0 = a;
     Vector3 P1 = b;
     Vector3 P2 = c;
-    //Vector3 Q1 = P1 − P0;
-    //Vector3 Q2 = P2 − P0;
     Vector3 Q1 = P1 - P0;
     Vector3 Q2 = P2 - P0;
     Real s1 = u1 - u0;

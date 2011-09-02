@@ -1,6 +1,6 @@
 <map maxdecal="10">
-	<portalin point="p11"/>
-	<portalout point="p45"/>
+	<portalin x="1" y="3"/>
+	<portalout x="1" y="4" direction="left"/>
 	<portals>
 		<portalpair color="red">
 			<portal x="2" y="1" direction="up" />
