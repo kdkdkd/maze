@@ -129,7 +129,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
     bool MazeFrameListener::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
     {
-        if(map->decals.size()>=map->max_decal)
+        if((int)map->decals.size()>=map->max_decal)
            return false;
 
         Vector3 a,b,c;
@@ -291,7 +291,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
                     mCamera->yaw(mRotX);
                 }else if(map->is_out(pos2d))
                 {
-                    
+                    return false;
                 }
             }
 
