@@ -92,7 +92,7 @@ class Game
         void createRayQuery();
         bool castRay(Vector3 pos,Vector3 dir,float max_dist,String filter,bool use_previous,Vector3&a,Vector3&b,Vector3&c,float & distance);
         void setLightPosition(Vector3 pos,double center);
-        void createScene();
+        void createScene(const char* map_location);
 };
 
 class MazeFrameListener : public FrameListener, public OIS::MouseListener
@@ -194,6 +194,12 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
 
         mKeyboard->capture();
         mMouse->capture();
+
+        if(mKeyboard->isKeyDown(OIS::KC_ESCAPE) )
+        {
+            return false;
+        }
+
         mMouse->setEventCallback(this);
         GameLogic.new_frame(evt.timeSinceLastFrame);
 
@@ -353,11 +359,11 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
             pos.y = center;
             nodeLight->setPosition(pos);
         }
-        void Game::createScene()
+        void Game::createScene(const char* map_location)
         {
 
 
-            map = new Map("../../../maps/level01.txt",mSceneMgr);
+            map = new Map(map_location,mSceneMgr);
 
             map->build_geometry();
 
@@ -388,7 +394,8 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
             {
                 if(mRoot->showConfigDialog())
                     mRoot->saveConfig();
-                return false;
+                else
+                    return false;
             }
             return true;
         }
@@ -402,7 +409,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
         }
         void  Game::loadRes()
         {
-            ResourceGroupManager::getSingleton().addResourceLocation("../../../media","FileSystem");
+            ResourceGroupManager::getSingleton().addResourceLocation("../media","FileSystem");
             ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
         }
@@ -471,7 +478,7 @@ class MazeFrameListener : public FrameListener, public OIS::MouseListener
             return new_closest_found;
         }
 
-int main()
+int main(int argc, char *argv[])
 {
     Game g;
 
@@ -483,7 +490,9 @@ int main()
     g.createCamera();
     g.createViewport();
     g.loadRes();
-    g.createScene();
+    const char * map_location = (argc<2)?"level01.txt":argv[1];
+
+    g.createScene(map_location);
     g.createFrameListener();
     g.createRayQuery();
     g.mRoot->startRendering();

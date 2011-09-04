@@ -8,36 +8,40 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="bin\Debug\labyrinth" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="OgreSDK_mingw_v1-7-2\bin\Debug" />
+				<Option working_dir="game" />
 				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
+				<Linker>
+					<Add library="OgreSDK_mingw_v1-7-2\lib\release\libOgreMain.dll.a" />
+					<Add library="OgreSDK_mingw_v1-7-2\lib\release\libOIS.dll.a" />
+				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\labyrinth" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
-				<Option type="1" />
+				<Option output="game\maze" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="game" />
+				<Option object_output="obj\Release" />
+				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="OgreSDK_mingw_v1-7-2\lib\release\libOgreMain.dll.a" />
+					<Add library="OgreSDK_mingw_v1-7-2\lib\release\libOIS.dll.a" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add directory="OgreSDK_mingw_v1-7-2\include" />
 			<Add directory="OgreSDK_mingw_v1-7-2\boost_1_44" />
 		</Compiler>
 		<Linker>
-			<Add library="OgreSDK_mingw_v1-7-2\lib\debug\libOIS_d.dll.a" />
-			<Add library="OgreSDK_mingw_v1-7-2\lib\debug\libOgreMain_d.dll.a" />
 			<Add directory="OgreSDK_mingw_v1-7-2\lib\debug" />
 			<Add directory="OgreSDK_mingw_v1-7-2\boost_1_44\lib" />
 		</Linker>

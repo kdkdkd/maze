@@ -67,7 +67,7 @@ Map::Map(const char * filename,SceneManager * mSceneMgr)
     volume_y = 16;
     volume_z = 16;
     octaves = 9;
-    doc.load_file(filename);
+    doc.load_file((String("../maps/") + String(filename)).c_str());
     portal_in = to_real(get_portal_in());
     portal_in.y+=5;
     this->mSceneMgr = mSceneMgr;
