@@ -17,6 +17,7 @@ struct Portal
 {
     Vector2 position;
     Vector2 center;
+    bool visible;
     enum Rotation
     {
         up,

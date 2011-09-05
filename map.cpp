@@ -1171,10 +1171,16 @@ Entity * Map::render_portals()
     int index = 0;
     for(std::vector<PortalPair>::iterator it = portals.begin(); it!=portals.end(); ++it)
     {
-        render_portal(manual_portals,index,it->portal1,it->color);
-        index += 4;
-        render_portal(manual_portals,index,it->portal2,it->color);
-        index += 4;
+        if(it->portal1.visible)
+        {
+            render_portal(manual_portals,index,it->portal1,it->color);
+            index += 4;
+        }
+        if(it->portal2.visible)
+        {
+            render_portal(manual_portals,index,it->portal2,it->color);
+            index += 4;
+        }
     }
     render_portal(manual_portals,index,portal_out,Vector3(1,1,1));
     index+=4;
@@ -1199,6 +1205,8 @@ Entity * Map::render_portals()
 Portal Map::add_portal(xml_node portal)
 {
     Portal portal_out;
+    portal_out.visible = strcmp(portal.attribute("visible").value(),"false");
+
     portal_out.position.x = to_real_x(portal.attribute("x").as_double());
     portal_out.position.y = to_real_y(portal.attribute("y").as_double());
     portal_out.center = portal_out.position;
@@ -1254,31 +1262,34 @@ Portal Map::add_portal(xml_node portal)
 
 
     }
-    q.strong = true;
-    quads.push_back(q);
+    if(portal_out.visible)
+    {
+        q.strong = true;
+        quads.push_back(q);
 
-    Block b;
-    b.constant = q.x0;
-    b.differ.x = q.y0;
-    b.differ.y = q.y1;
-    b.is_positive_direction = true;
-    merge_block_vertical(b);
-    b.constant = q.x1;
-    b.differ.x = q.y0;
-    b.differ.y = q.y1;
-    b.is_positive_direction = false;
-    merge_block_vertical(b);
+        Block b;
+        b.constant = q.x0;
+        b.differ.x = q.y0;
+        b.differ.y = q.y1;
+        b.is_positive_direction = true;
+        merge_block_vertical(b);
+        b.constant = q.x1;
+        b.differ.x = q.y0;
+        b.differ.y = q.y1;
+        b.is_positive_direction = false;
+        merge_block_vertical(b);
 
-    b.constant = q.y0;
-    b.differ.x = q.x0;
-    b.differ.y = q.x1;
-    b.is_positive_direction = true;
-    merge_block_horizontal(b);
-    b.constant = q.y1;
-    b.differ.x = q.x0;
-    b.differ.y = q.x1;
-    b.is_positive_direction = false;
-    merge_block_horizontal(b);
+        b.constant = q.y0;
+        b.differ.x = q.x0;
+        b.differ.y = q.x1;
+        b.is_positive_direction = true;
+        merge_block_horizontal(b);
+        b.constant = q.y1;
+        b.differ.x = q.x0;
+        b.differ.y = q.x1;
+        b.is_positive_direction = false;
+        merge_block_horizontal(b);
+    }
     return portal_out;
 }
 
@@ -1538,11 +1549,11 @@ Portal * Map::find_portal(Vector2 position)
     scale_y_local*=scale_y_local;
     for(std::vector<PortalPair>::iterator it = portals.begin(); it!=portals.end(); ++it)
     {
-        if(it->portal1.position.squaredDistance(position)<scale_y_local)
+        if(it->portal1.visible && it->portal1.position.squaredDistance(position)<scale_y_local)
         {
             return &(it->portal2);
         }
-        if(it->portal2.position.squaredDistance(position)<scale_y_local)
+        if(it->portal2.visible && it->portal2.position.squaredDistance(position)<scale_y_local)
         {
             return &(it->portal1);
         }
